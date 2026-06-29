@@ -1,0 +1,83 @@
+@model ProductDetailsViewModel
+@{
+    ViewData["Title"] = Model.SanPham.tenSanPham;
+    var mainImg = Model.HinhAnhs.FirstOrDefault(x => x.laAnhChinh)?.duongDanAnh
+        ?? Model.HinhAnhs.FirstOrDefault()?.duongDanAnh
+        ?? Model.SanPham.hinhAnhDaiDien
+        ?? "/images/products/placeholder.svg";
+}
+<section class="product-detail-page">
+    <div class="gallery-card">
+        <img class="detail-main-img" src="@mainImg" alt="@Model.SanPham.tenSanPham" />
+        @if (Model.HinhAnhs.Any())
+        {
+            <div class="mini-gallery">
+                @foreach (var img in Model.HinhAnhs.Take(4))
+                {
+                    <img src="@img.duongDanAnh" alt="Ảnh @Model.SanPham.tenSanPham" />
+                }
+            </div>
+        }
+    </div>
+    <div class="detail-info-card">
+        <span class="eyebrow">@Model.SanPham.DanhMuc?.tenDanhMuc</span>
+        <h1>@Model.SanPham.tenSanPham</h1>
+        <p class="sku-line">Mã sản phẩm: <b>@Model.SanPham.maSanPham</b></p>
+        <div class="detail-price">@((Model.SanPham.giaKhuyenMai ?? Model.SanPham.giaGoc).ToString("N0")) đ</div>
+        @if (Model.SanPham.giaKhuyenMai.HasValue)
+        {
+            <p class="old-price">Giá gốc: @Model.SanPham.giaGoc.ToString("N0") đ</p>
+        }
+        @if (Model.LaChayHang)
+        {
+            <div class="soldout-box large">Cháy hàng</div>
+        }
+        else
+        {
+            <div class="stock-pill">Còn @Model.TongTonKho sản phẩm</div>
+        }
+
+        <div class="variant-section">
+            <h3>Biến thể size / màu</h3>
+            <div class="variant-grid">
+                @foreach (var v in Model.BienThes)
+                {
+                    <span class="variant-chip @(v.soLuongTon == 0 ? "disabled" : "")">@v.size · @v.mauSac <small>@v.soLuongTon</small></span>
+                }
+            </div>
+        </div>
+
+        <div class="buy-box">
+            <button class="btn" disabled="@Model.LaChayHang">Thêm vào giỏ</button>
+            <button class="btn btn-dark" disabled="@Model.LaChayHang">Mua ngay</button>
+        </div>
+        <div class="product-benefits">
+            <span>✓ Đổi hàng 7 ngày</span>
+            <span>✓ Thanh toán COD/VNPay</span>
+            <span>✓ Tích điểm thành viên</span>
+        </div>
+    </div>
+</section>
+
+<section class="detail-description">
+    <div>
+        <span class="eyebrow">Description</span>
+        <h2>Mô tả sản phẩm</h2>
+        <p>@(Model.SanPham.moTaChiTiet ?? Model.SanPham.moTaNgan ?? "Sản phẩm thời trang ICONDENIM với thiết kế dễ phối, phù hợp sử dụng hằng ngày.")</p>
+    </div>
+    <div>
+        <span class="eyebrow">Reviews</span>
+        <h2>Đánh giá sản phẩm</h2>
+        @if (!Model.DanhGias.Any())
+        {
+            <p class="muted">Chưa có đánh giá. Khách hàng có thể đánh giá sau khi đơn hàng hoàn tất.</p>
+        }
+        else
+        {
+            foreach (var dg in Model.DanhGias)
+            {
+                <div class="review"><b>@dg.soSao sao</b><span>@dg.noiDung</span></div>
+            }
+        }
+    </div>
+</section>

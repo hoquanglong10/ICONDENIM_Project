@@ -1,0 +1,3 @@
+using System.ComponentModel.DataAnnotations;
+namespace ICONDENIM.Web.Models;
+public class KhuyenMai { [Key] public int khuyenMaiID { get; set; } public string maCode { get; set; } = string.Empty; public string tenChuongTrinh { get; set; } = string.Empty; public string loaiGiam { get; set; } = "PhanTram"; public decimal giaTriGiam { get; set; } public decimal? giaTriGiamToiDa { get; set; } public decimal dieuKienToiThieu { get; set; } public int soLuotSuDung { get; set; } public int daSuDung { get; set; } public DateTime ngayBatDau { get; set; } public DateTime ngayKetThuc { get; set; } public int? apDungLoaiKhachHangID { get; set; } public bool trangThai { get; set; } = true; }

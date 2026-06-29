@@ -1,0 +1,25 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Tổng quan quản trị";
+}
+<div class="dashboard-grid">
+    <div class="dashboard-card"><span>Tổng sản phẩm</span><b>@Model.TongSanPham</b><p>Hàng hóa đang quản lý</p></div>
+    <div class="dashboard-card"><span>Người dùng</span><b>@Model.TongNguoiDung</b><p>Khách hàng và nhân sự</p></div>
+    <div class="dashboard-card warning"><span>Đơn chờ xác nhận</span><b>@Model.DonChoXacNhan</b><p>Cần duyệt đơn</p></div>
+    <div class="dashboard-card"><span>Đơn đang giao</span><b>@Model.DonDangGiao</b><p>Đang xử lý giao hàng</p></div>
+    <div class="dashboard-card"><span>Mã khuyến mãi</span><b>@Model.MaKhuyenMaiDangApDung</b><p>Đang áp dụng</p></div>
+    <div class="dashboard-card success"><span>Doanh thu đã thu</span><b>@Model.DoanhThuDaThu.ToString("N0") đ</b><p>Đơn đã thanh toán/thu tiền</p></div>
+</div>
+<section class="admin-panel">
+    <div>
+        <span class="eyebrow">Điều hướng nhanh</span>
+        <h2>Chọn chức năng quản lý</h2>
+        <p class="muted">Sử dụng danh mục bên trái hoặc các thẻ bên dưới để chuyển nhanh sang từng khu vực quản trị.</p>
+    </div>
+    <div class="quick-actions">
+        <a asp-controller="AdminProducts" asp-action="Index">Quản lý hàng hóa</a>
+        <a asp-controller="AdminUsers" asp-action="Index">Quản lý người dùng</a>
+        <a asp-controller="AdminOrders" asp-action="Index">Quản lý đơn hàng</a>
+        <a asp-controller="AdminPromotions" asp-action="Index">Mã khuyến mãi</a>
+    </div>
+</section>

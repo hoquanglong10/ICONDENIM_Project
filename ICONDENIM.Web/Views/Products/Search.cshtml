@@ -1,0 +1,21 @@
+@model List<SanPhamTrangChuView>
+@{
+    ViewData["Title"] = "Tìm kiếm sản phẩm";
+}
+<section class="listing-hero">
+    <span class="eyebrow">Product finder</span>
+    <h1>Tìm kiếm sản phẩm</h1>
+    <p>Nhập tên sản phẩm, mã sản phẩm hoặc danh mục để tìm nhanh outfit phù hợp.</p>
+    <form method="get" class="search-panel">
+        <input name="q" value="@ViewBag.Keyword" placeholder="Tên, mã sản phẩm, danh mục..." />
+        <button class="btn">Tìm kiếm</button>
+    </form>
+</section>
+@if (!Model.Any())
+{
+    <div class="empty-state">Không tìm thấy sản phẩm phù hợp. Thử từ khóa khác như <b>denim</b>, <b>jeans</b>, <b>áo</b>.</div>
+}
+else
+{
+    <div class="product-grid">@foreach (var p in Model) { <partial name="_ProductCard" model="p" /> }</div>
+}

@@ -1,0 +1,26 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+<section class="auth-page">
+    <div class="auth-card wide-auth">
+        <span class="eyebrow">Join ICONDENIM</span>
+        <h1>Tạo tài khoản mới</h1>
+        <p class="muted">Tạo tài khoản để mua hàng nhanh hơn, lưu địa chỉ giao hàng và tích điểm thành viên.</p>
+        <form method="post" class="auth-form grid-form">
+            <div asp-validation-summary="ModelOnly" class="validation-box full"></div>
+            <div><label asp-for="HoTen"></label><input asp-for="HoTen" placeholder="Nguyễn Văn A" /><span asp-validation-for="HoTen"></span></div>
+            <div><label asp-for="SoDienThoai"></label><input asp-for="SoDienThoai" placeholder="0900000000" /><span asp-validation-for="SoDienThoai"></span></div>
+            <div><label asp-for="Email"></label><input asp-for="Email" placeholder="email@example.com" /><span asp-validation-for="Email"></span></div>
+            <div><label asp-for="NgaySinh"></label><input asp-for="NgaySinh" type="date" /></div>
+            <div><label asp-for="MatKhau"></label><input asp-for="MatKhau" placeholder="Tối thiểu 6 ký tự" /><span asp-validation-for="MatKhau"></span></div>
+            <div><label asp-for="NhapLaiMatKhau"></label><input asp-for="NhapLaiMatKhau" placeholder="Nhập lại mật khẩu" /><span asp-validation-for="NhapLaiMatKhau"></span></div>
+            <div class="full"><label asp-for="DiaChiGiaoHang"></label><input asp-for="DiaChiGiaoHang" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" /></div>
+            <button class="btn full">Đăng ký</button>
+        </form>
+        <div class="auth-actions">
+            <span>Đã có tài khoản?</span>
+            <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
+        </div>
+    </div>
+</section>

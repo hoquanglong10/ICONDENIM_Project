@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICONDENIM.Web", "ICONDENIM.Web\ICONDENIM.Web.csproj", "{5A220120-58AD-485E-B1C0-2145ADE67E28}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A220120-58AD-485E-B1C0-2145ADE67E28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A220120-58AD-485E-B1C0-2145ADE67E28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A220120-58AD-485E-B1C0-2145ADE67E28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A220120-58AD-485E-B1C0-2145ADE67E28}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B43DF124-31E9-4B1D-A3AF-25FA7A346F3E}
+	EndGlobalSection
+EndGlobal

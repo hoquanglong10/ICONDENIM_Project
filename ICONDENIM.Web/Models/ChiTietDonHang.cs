@@ -1,0 +1,3 @@
+using System.ComponentModel.DataAnnotations;
+namespace ICONDENIM.Web.Models;
+public class ChiTietDonHang { [Key] public int chiTietDonHangID { get; set; } public int donHangID { get; set; } public int bienTheID { get; set; } public string tenSanPhamSnapshot { get; set; } = string.Empty; public string skuSnapshot { get; set; } = string.Empty; public string sizeSnapshot { get; set; } = string.Empty; public string mauSacSnapshot { get; set; } = string.Empty; public int soLuong { get; set; } public decimal donGia { get; set; } public decimal thanhTien { get; set; } public string? commentPro { get; set; } public DonHang? DonHang { get; set; } public BienTheSanPham? BienTheSanPham { get; set; } }

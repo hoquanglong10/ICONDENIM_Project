@@ -1,0 +1,56 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+<section class="hero-modern">
+    <div class="hero-content">
+        <span class="eyebrow light">New season denim</span>
+        <h1>Outfit tối giản, chất denim hiện đại</h1>
+        <p>Khám phá áo thun, sơ mi denim, quần jeans và phụ kiện được chọn lọc cho phong cách hằng ngày.</p>
+        <div class="hero-actions">
+            <a class="btn" asp-controller="Products" asp-action="Search">Mua ngay</a>
+            <a class="btn btn-glass" asp-controller="Products" asp-action="Search" asp-route-q="denim">Xem denim</a>
+        </div>
+    </div>
+    <div class="hero-product-card">
+        <span class="tag">HOT</span>
+        <div class="hero-shirt">ICONDENIM</div>
+        <h3>Summer denim drop</h3>
+        <p>Ưu đãi thành viên & giao hàng toàn quốc</p>
+    </div>
+</section>
+
+<section class="policy-modern">
+    <div><b>Miễn phí vận chuyển</b><span>Đơn từ 1.000.000đ</span></div>
+    <div><b>Đổi hàng 7 ngày</b><span>Linh hoạt size/màu</span></div>
+    <div><b>Thanh toán dễ dàng</b><span>COD / VNPay</span></div>
+    <div><b>Tích điểm thành viên</b><span>Nhận ưu đãi riêng</span></div>
+</section>
+
+@if (Model.DanhMucs.Any())
+{
+    <section class="section-block">
+        <div class="section-heading"><span class="eyebrow">Categories</span><h2>Danh mục nổi bật</h2></div>
+        <div class="category-strip">
+            @foreach (var dm in Model.DanhMucs.Take(6))
+            {
+                <a asp-controller="Products" asp-action="Search" asp-route-danhMucID="@dm.danhMucID">@dm.tenDanhMuc</a>
+            }
+        </div>
+    </section>
+}
+
+<section class="section-block">
+    <div class="section-heading"><span class="eyebrow">Best choice</span><h2>Hàng hot</h2><a asp-controller="Products" asp-action="Search" asp-route-q="hot">Xem tất cả</a></div>
+    <div class="product-grid">@foreach (var p in Model.HangHot) { <partial name="_ProductCard" model="p" /> }</div>
+</section>
+
+<section class="section-block">
+    <div class="section-heading"><span class="eyebrow">Trending now</span><h2>Hàng bán chạy</h2><a asp-controller="Products" asp-action="Search" asp-route-q="denim">Khám phá</a></div>
+    <div class="product-grid">@foreach (var p in Model.HangBanChay) { <partial name="_ProductCard" model="p" /> }</div>
+</section>
+
+<section class="section-block">
+    <div class="section-heading"><span class="eyebrow">All products</span><h2>Sản phẩm mới nhất</h2></div>
+    <div class="product-grid">@foreach (var p in Model.TatCaSanPham) { <partial name="_ProductCard" model="p" /> }</div>
+</section>

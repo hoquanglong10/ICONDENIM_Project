@@ -1,0 +1,24 @@
+@model ProductAdminViewModel
+<div class="admin-form-card">
+    <div class="form-grid">
+        <label>Danh mục<select asp-for="danhMucID" asp-items="ViewBag.DanhMucs"></select></label>
+        <label>Mã sản phẩm<input asp-for="maSanPham" placeholder="SP001" /></label>
+        <label>Tên sản phẩm<input asp-for="tenSanPham" placeholder="Áo denim basic" /></label>
+        <label>Slug<input asp-for="slug" placeholder="ao-denim-basic" /></label>
+        <label>Giá gốc<input asp-for="giaGoc" /></label>
+        <label>Giá khuyến mãi<input asp-for="giaKhuyenMai" /></label>
+        <label>Ảnh đại diện<input asp-for="hinhAnhDaiDien" placeholder="/images/products/..." /></label>
+        <label>SKU biến thể<input asp-for="sku" /></label>
+        <label>Size<input asp-for="size" placeholder="M, L, XL" /></label>
+        <label>Màu sắc<input asp-for="mauSac" placeholder="Xanh denim" /></label>
+        <label>Giá bán biến thể<input asp-for="giaBan" /></label>
+        <label>Tồn kho<input asp-for="soLuongTon" /></label>
+        <label class="check-line"><input asp-for="laHangHot" /> Hàng hot</label>
+        <label class="check-line"><input asp-for="laHangBanChay" /> Hàng bán chạy</label>
+        <label class="check-line"><input asp-for="choPhepHienThi" /> Cho phép hiển thị</label>
+        <label>Trạng thái<select asp-for="trangThai"><option>DangBan</option><option>NgungBan</option><option>An</option></select></label>
+        <label class="full">Mô tả ngắn<textarea asp-for="moTaNgan" rows="3"></textarea></label>
+        <label class="full">Mô tả chi tiết<textarea asp-for="moTaChiTiet" rows="5"></textarea></label>
+    </div>
+    <button class="btn">Lưu thông tin</button>
+</div>

@@ -1,0 +1,15 @@
+@model OrderStatusUpdateViewModel
+@{
+    ViewData["Title"] = "Cập nhật trạng thái đơn hàng";
+}
+<form method="post" class="admin-form-card">
+    <input type="hidden" asp-for="donHangID" />
+    <div class="form-grid">
+        <label>Trạng thái đơn<select asp-for="trangThaiDonHang"><option>ChoXacNhan</option><option>DaDuyet</option><option>DangGiao</option><option>GiaoThanhCong</option><option>GiaoThatBai</option><option>DaHuy</option></select></label>
+        <label>Trạng thái giao<select asp-for="trangThaiGiaoHang"><option>ChuaGiao</option><option>DangGiao</option><option>GiaoThanhCong</option><option>GiaoThatBai</option></select></label>
+        <label>Người giao<select asp-for="nguoiGiaoID" asp-items="ViewBag.Shippers"><option value="">-- Chưa phân công --</option></select></label>
+        <label class="check-line"><input asp-for="daThuTien" /> Đã thu tiền</label>
+        <label class="full">Ghi chú<textarea asp-for="ghiChu" rows="5"></textarea></label>
+    </div>
+    <button class="btn">Lưu trạng thái</button>
+</form>

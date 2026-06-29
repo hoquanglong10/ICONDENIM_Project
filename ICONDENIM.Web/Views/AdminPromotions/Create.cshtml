@@ -1,0 +1,19 @@
+@model KhuyenMai
+@{
+    ViewData["Title"] = "Thêm mã khuyến mãi";
+}
+<form method="post" class="admin-form-card">
+    <div class="form-grid">
+        <label>Mã code<input asp-for="maCode" /></label>
+        <label>Tên chương trình<input asp-for="tenChuongTrinh" /></label>
+        <label>Loại giảm<select asp-for="loaiGiam"><option>PhanTram</option><option>TienMat</option></select></label>
+        <label>Giá trị giảm<input asp-for="giaTriGiam" /></label>
+        <label>Giảm tối đa<input asp-for="giaTriGiamToiDa" /></label>
+        <label>Đơn tối thiểu<input asp-for="dieuKienToiThieu" /></label>
+        <label>Số lượt<input asp-for="soLuotSuDung" /></label>
+        <label>Bắt đầu<input asp-for="ngayBatDau" type="date" /></label>
+        <label>Kết thúc<input asp-for="ngayKetThuc" type="date" /></label>
+        <label class="check-line"><input asp-for="trangThai" /> Đang áp dụng</label>
+    </div>
+    <button class="btn">Lưu mã khuyến mãi</button>
+</form>

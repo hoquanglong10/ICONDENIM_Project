@@ -1,0 +1,18 @@
+@model List<KhuyenMai>
+@{
+    ViewData["Title"] = "Quản lý mã khuyến mãi";
+}
+<section class="admin-panel">
+    <div class="panel-header"><div><span class="eyebrow">Promotions</span><h2>Danh sách mã khuyến mãi</h2></div><a class="btn" asp-action="Create">+ Thêm mã</a></div>
+    <div class="table-card">
+        <table class="modern-table">
+            <thead><tr><th>Mã</th><th>Tên chương trình</th><th>Loại</th><th>Giá trị</th><th>Lượt dùng</th><th>Hiệu lực</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+            @foreach (var km in Model)
+            {
+                <tr><td><b>@km.maCode</b></td><td>@km.tenChuongTrinh</td><td>@km.loaiGiam</td><td>@km.giaTriGiam</td><td>@km.daSuDung / @km.soLuotSuDung</td><td>@km.ngayBatDau.ToString("dd/MM/yyyy") - @km.ngayKetThuc.ToString("dd/MM/yyyy")</td><td>@(km.trangThai ? "Đang áp dụng" : "Ngừng")</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,3 @@
+using System.ComponentModel.DataAnnotations;
+namespace ICONDENIM.Web.Models;
+public class BienTheSanPham { [Key] public int bienTheID { get; set; } public int sanPhamID { get; set; } public string sku { get; set; } = string.Empty; public string size { get; set; } = string.Empty; public string mauSac { get; set; } = string.Empty; public decimal giaBan { get; set; } public decimal? giaKhuyenMai { get; set; } public int soLuongTon { get; set; } public string? hinhAnh { get; set; } public bool trangThai { get; set; } = true; public SanPham? SanPham { get; set; } public decimal GiaHienThi => giaKhuyenMai ?? giaBan; }

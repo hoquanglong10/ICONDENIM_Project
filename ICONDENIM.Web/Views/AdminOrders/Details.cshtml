@@ -1,0 +1,32 @@
+@model DonHang
+@{
+    ViewData["Title"] = "Chi tiết đơn " + Model.maDonHang;
+}
+<section class="admin-panel">
+    <div class="order-summary">
+        <div><span class="eyebrow">Mã đơn</span><h2>@Model.maDonHang</h2></div>
+        <div><span>Khách hàng</span><b>@(Model.NguoiDung?.hoTen ?? Model.tenKhachVangLai ?? Model.hoTenNhan)</b></div>
+        <div><span>Số điện thoại</span><b>@Model.sdtNhan</b></div>
+        <div><span>Thành tiền</span><b>@Model.thanhTien.ToString("N0") đ</b></div>
+    </div>
+    <div class="order-meta">
+        <p><b>Địa chỉ:</b> @Model.diaChiNhan</p>
+        <p><b>Trạng thái:</b> @Model.trangThaiDonHang · @Model.trangThaiGiaoHang · Thu tiền: @(Model.daThuTien ? "Đã thu" : "Chưa thu")</p>
+        <p><b>Người giao:</b> @(Model.NguoiGiao?.hoTen ?? "Chưa phân công")</p>
+    </div>
+    <div class="table-card">
+        <table class="modern-table">
+            <thead><tr><th>Sản phẩm</th><th>SKU</th><th>Size</th><th>Màu</th><th>SL</th><th>Đơn giá</th><th>Ghi chú</th></tr></thead>
+            <tbody>
+            @foreach (var c in Model.ChiTietDonHangs ?? new List<ChiTietDonHang>())
+            {
+                <tr><td>@c.tenSanPhamSnapshot</td><td>@c.skuSnapshot</td><td>@c.sizeSnapshot</td><td>@c.mauSacSnapshot</td><td>@c.soLuong</td><td>@c.donGia.ToString("N0") đ</td><td>@c.commentPro</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="form-actions">
+        <a class="btn" asp-action="EditStatus" asp-route-id="@Model.donHangID">Cập nhật trạng thái</a>
+        <form method="post" asp-action="Cancel" asp-route-id="@Model.donHangID" class="inline"><button class="btn danger" onclick="return confirm('Hủy đơn sẽ cộng lại tồn kho. Tiếp tục?')">Hủy đơn và cộng kho</button></form>
+    </div>
+</section>

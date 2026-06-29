@@ -1,0 +1,15 @@
+@model NguoiDung
+<div class="admin-form-card">
+    <div class="form-grid">
+        <label>Vai trò<select asp-for="vaiTroID" asp-items="ViewBag.VaiTros"></select></label>
+        <label>Loại khách hàng<select asp-for="loaiKhachHangID" asp-items="ViewBag.LoaiKhachHangs"><option value="">-- Không áp dụng --</option></select></label>
+        <label>Họ tên<input asp-for="hoTen" /></label>
+        <label>Số điện thoại<input asp-for="soDienThoai" /></label>
+        <label>Email<input asp-for="email" /></label>
+        <label>Mật khẩu<input asp-for="matKhauHash" /></label>
+        <label>Ngày sinh<input asp-for="ngaySinh" type="date" /></label>
+        <label>Điểm tích lũy<input asp-for="diemTichLuy" /></label>
+        <label>Trạng thái<select asp-for="trangThai"><option>HoatDong</option><option>BiKhoa</option></select></label>
+    </div>
+    <button class="btn">Lưu người dùng</button>
+</div>

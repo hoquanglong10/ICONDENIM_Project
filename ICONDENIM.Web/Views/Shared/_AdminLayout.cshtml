@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Admin ICONDENIM</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <a class="admin-brand" asp-controller="Admin" asp-action="Index">
+            <span class="brand-mark">ID</span>
+            <span>Admin</span>
+        </a>
+        <div class="admin-user">
+            <span>Xin chào</span>
+            <b>@(Context.Session.GetString("AdminName") ?? "Quản trị viên")</b>
+        </div>
+        <nav class="admin-menu">
+            <a asp-controller="Admin" asp-action="Index">📊 Tổng quan</a>
+            <a asp-controller="AdminProducts" asp-action="Index">👕 Quản lý hàng hóa</a>
+            <a asp-controller="AdminUsers" asp-action="Index">👤 Quản lý người dùng</a>
+            <a asp-controller="AdminOrders" asp-action="Index">📦 Quản lý đơn hàng</a>
+            <a asp-controller="AdminPromotions" asp-action="Index">🏷️ Mã khuyến mãi</a>
+            <a asp-controller="Home" asp-action="Index">↩ Về website</a>
+        </nav>
+        <form asp-controller="Admin" asp-action="Logout" method="post" class="admin-logout">
+            <button>Đăng xuất Admin</button>
+        </form>
+    </aside>
+    <section class="admin-main">
+        <div class="admin-topbar">
+            <div>
+                <span class="admin-eyebrow">ICONDENIM Management</span>
+                <h1>@ViewData["Title"]</h1>
+            </div>
+            <span class="admin-date">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+        </div>
+        @RenderBody()
+    </section>
+</div>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

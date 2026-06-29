@@ -1,0 +1,33 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập khách hàng";
+}
+<section class="auth-page">
+    <div class="auth-card">
+        <span class="eyebrow">ICONDENIM Member</span>
+        <h1>Đăng nhập khách hàng</h1>
+        <p class="muted">Đăng nhập để đặt hàng, theo dõi đơn và nhận ưu đãi dành cho khách hàng thân thiết.</p>
+        <form method="post" class="auth-form">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="validation-box"></div>
+            <label asp-for="EmailOrPhone"></label>
+            <input asp-for="EmailOrPhone" placeholder="an.nguyen@example.com hoặc số điện thoại" />
+            <span asp-validation-for="EmailOrPhone"></span>
+            <label asp-for="MatKhau"></label>
+            <input asp-for="MatKhau" placeholder="Mật khẩu" />
+            <span asp-validation-for="MatKhau"></span>
+            <button class="btn full-btn">Đăng nhập</button>
+        </form>
+        <div class="auth-actions">
+            <span>Chưa có tài khoản?</span>
+            <a asp-controller="Account" asp-action="Register">Đăng ký ngay</a>
+        </div>
+        <a class="admin-login-switch" asp-controller="Admin" asp-action="Login">Đăng nhập dành cho Admin</a>
+        <p class="hint-box">Tài khoản demo khách hàng: <b>an.nguyen@example.com</b> / <b>123456</b></p>
+    </div>
+    <div class="auth-visual">
+        <div class="floating-card one">Denim collection</div>
+        <div class="floating-card two">COD / VNPay</div>
+        <div class="floating-card three">Member rewards</div>
+    </div>
+</section>

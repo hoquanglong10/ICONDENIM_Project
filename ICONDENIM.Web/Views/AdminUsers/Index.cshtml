@@ -1,0 +1,28 @@
+@model List<NguoiDung>
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
+<section class="admin-panel">
+    <div class="panel-header">
+        <div><span class="eyebrow">Users</span><h2>Danh sách người dùng</h2></div>
+        <a class="btn" asp-action="Create">+ Thêm người dùng</a>
+    </div>
+    <form method="get" class="admin-filter">
+        <input name="q" value="@ViewBag.Keyword" placeholder="Tìm tên, email, số điện thoại" />
+        <button class="btn btn-dark">Tìm</button>
+    </form>
+    <div class="table-card">
+        <table class="modern-table">
+            <thead><tr><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Vai trò</th><th>Loại KH</th><th>Điểm</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td><b>@u.hoTen</b></td><td>@u.soDienThoai</td><td>@u.email</td><td>@u.VaiTro?.tenVaiTro</td><td>@u.LoaiKhachHang?.tenLoai</td><td>@u.diemTichLuy</td><td>@u.trangThai</td>
+                    <td class="actions-cell"><a asp-action="Edit" asp-route-id="@u.userID">Sửa</a><form method="post" asp-action="ToggleLock" asp-route-id="@u.userID" class="inline"><button>Khóa/Mở</button></form></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

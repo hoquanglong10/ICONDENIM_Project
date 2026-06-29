@@ -1,0 +1,40 @@
+@model List<SanPham>
+@{
+    ViewData["Title"] = "Quản lý hàng hóa";
+}
+<section class="admin-panel">
+    <div class="panel-header">
+        <div><span class="eyebrow">Products</span><h2>Danh sách hàng hóa</h2></div>
+        <a class="btn" asp-action="Create">+ Thêm sản phẩm</a>
+    </div>
+    <form method="get" class="admin-filter">
+        <input name="q" value="@ViewBag.Keyword" placeholder="Tìm tên hoặc mã sản phẩm" />
+        <button class="btn btn-dark">Tìm</button>
+    </form>
+    <div class="table-card">
+        <table class="modern-table">
+            <thead><tr><th>Mã</th><th>Tên sản phẩm</th><th>Danh mục</th><th>Tồn kho</th><th>Nhãn</th><th>Hiển thị</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            @foreach (var p in Model)
+            {
+                var ton = p.BienThes?.Sum(x => x.soLuongTon) ?? 0;
+                <tr>
+                    <td><b>@p.maSanPham</b></td>
+                    <td>@p.tenSanPham</td>
+                    <td>@p.DanhMuc?.tenDanhMuc</td>
+                    <td><span class="stock-badge @(ton == 0 ? "danger" : "")">@ton</span></td>
+                    <td>
+                        @if (p.laHangHot) { <span class="mini-badge">Hot</span> }
+                        @if (p.laHangBanChay) { <span class="mini-badge green">Bán chạy</span> }
+                    </td>
+                    <td>@(p.choPhepHienThi ? "Hiện" : "Ẩn")</td>
+                    <td class="actions-cell">
+                        <a asp-action="Edit" asp-route-id="@p.sanPhamID">Sửa</a>
+                        <form asp-action="ToggleDisplay" asp-route-id="@p.sanPhamID" method="post" class="inline"><button>Ẩn/Hiện</button></form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,36 @@
+@model List<DonHang>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+}
+<section class="admin-panel">
+    <div class="panel-header"><div><span class="eyebrow">Orders</span><h2>Danh sách đơn hàng</h2></div></div>
+    <form method="get" class="admin-filter multi">
+        <input type="date" name="tuNgay" value="@ViewBag.TuNgay" />
+        <input type="date" name="denNgay" value="@ViewBag.DenNgay" />
+        <select name="trangThai">
+            <option value="">Tất cả trạng thái</option>
+            <option>ChoXacNhan</option><option>DaDuyet</option><option>DangGiao</option><option>GiaoThanhCong</option><option>GiaoThatBai</option><option>DaHuy</option>
+        </select>
+        <button class="btn btn-dark">Lọc đơn</button>
+    </form>
+    <div class="table-card">
+        <table class="modern-table">
+            <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt</th><th>Trạng thái</th><th>Thanh toán</th><th>Giao hàng</th><th>Thành tiền</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td><b>@d.maDonHang</b></td>
+                    <td>@(d.NguoiDung?.hoTen ?? d.tenKhachVangLai ?? d.hoTenNhan)</td>
+                    <td>@d.ngayDat.ToString("dd/MM/yyyy")</td>
+                    <td><span class="mini-badge">@d.trangThaiDonHang</span></td>
+                    <td>@d.trangThaiThanhToan</td>
+                    <td>@d.trangThaiGiaoHang</td>
+                    <td><b>@d.thanhTien.ToString("N0") đ</b></td>
+                    <td class="actions-cell"><a asp-action="Details" asp-route-id="@d.donHangID">Chi tiết</a><a asp-action="EditStatus" asp-route-id="@d.donHangID">Cập nhật</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
