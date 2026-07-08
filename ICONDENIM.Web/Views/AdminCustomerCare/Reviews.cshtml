@@ -1,0 +1,15 @@
+@model List<DanhGia>
+@{
+    ViewData["Title"] = "Quản lý đánh giá sản phẩm";
+}
+<section class="admin-panel">
+    <div class="panel-header"><div><span class="eyebrow">Reviews</span><h2>Đánh giá sản phẩm của khách hàng</h2></div><a asp-action="Index" class="btn btn-glass">Yêu cầu CSKH</a></div>
+    @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+    <form method="get" class="admin-filter multi"><select name="trangThai"><option value="">Tất cả</option><option>ChoDuyet</option><option>DaDuyet</option><option>TuChoi</option></select><button class="btn btn-dark">Lọc</button></form>
+    <div class="table-card"><table class="modern-table"><thead><tr><th>ID</th><th>User</th><th>Sản phẩm</th><th>Đơn</th><th>Sao</th><th>Nội dung</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+    @foreach (var r in Model)
+    {
+        <tr><td>@r.danhGiaID</td><td>@r.userID</td><td>@r.sanPhamID</td><td>@r.donHangID</td><td>@r.soSao ⭐</td><td>@r.noiDung</td><td>@r.trangThai</td><td><form asp-action="UpdateReview" method="post" class="inline-form"><input type="hidden" name="id" value="@r.danhGiaID"/><select name="trangThai"><option>DaDuyet</option><option>TuChoi</option><option>ChoDuyet</option></select><button>Lưu</button></form></td></tr>
+    }
+    </tbody></table></div>
+</section>

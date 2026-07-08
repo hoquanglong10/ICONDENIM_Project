@@ -111,6 +111,95 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+
+
+    public async Task<IActionResult> Profile()
+    {
+        var userId = HttpContext.Session.GetInt32("CustomerUserID");
+        if (!userId.HasValue) return RedirectToAction(nameof(Login), new { returnUrl = Url.Action(nameof(Profile)) });
+        var user = await _db.NguoiDungs.Include(x => x.LoaiKhachHang).FirstOrDefaultAsync(x => x.userID == userId.Value);
+        if (user == null) return RedirectToAction(nameof(Login));
+        var address = await _db.DiaChiNguoiDungs.FirstOrDefaultAsync(x => x.userID == userId.Value && x.laMacDinh && x.trangThai);
+        return View(new ProfileViewModel
+        {
+            userID = user.userID,
+            hoTen = user.hoTen,
+            soDienThoai = user.soDienThoai,
+            email = user.email,
+            ngaySinh = user.ngaySinh,
+            diemTichLuy = user.diemTichLuy,
+            loaiKhachHang = user.LoaiKhachHang?.tenLoai,
+            diaChiGiaoHang = address?.diaChiChiTiet
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Profile(ProfileViewModel vm)
+    {
+        var userId = HttpContext.Session.GetInt32("CustomerUserID");
+        if (!userId.HasValue) return RedirectToAction(nameof(Login));
+        if (!ModelState.IsValid) return View(vm);
+        var user = await _db.NguoiDungs.FindAsync(userId.Value);
+        if (user == null) return NotFound();
+        user.hoTen = vm.hoTen.Trim();
+        user.soDienThoai = vm.soDienThoai.Trim();
+        user.email = vm.email?.Trim();
+        user.ngaySinh = vm.ngaySinh;
+        user.ngayCapNhat = DateTime.Now;
+        var address = await _db.DiaChiNguoiDungs.FirstOrDefaultAsync(x => x.userID == userId.Value && x.laMacDinh && x.trangThai);
+        if (!string.IsNullOrWhiteSpace(vm.diaChiGiaoHang))
+        {
+            if (address == null)
+            {
+                _db.DiaChiNguoiDungs.Add(new DiaChiNguoiDung
+                {
+                    userID = user.userID,
+                    hoTenNhan = user.hoTen,
+                    sdtNhan = user.soDienThoai,
+                    diaChiChiTiet = vm.diaChiGiaoHang.Trim(),
+                    laMacDinh = true,
+                    trangThai = true
+                });
+            }
+            else
+            {
+                address.hoTenNhan = user.hoTen;
+                address.sdtNhan = user.soDienThoai;
+                address.diaChiChiTiet = vm.diaChiGiaoHang.Trim();
+            }
+        }
+        await _db.SaveChangesAsync();
+        HttpContext.Session.SetString("CustomerName", user.hoTen);
+        TempData["Success"] = "Đã cập nhật thông tin cá nhân.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    public IActionResult ChangePassword()
+    {
+        if (!HttpContext.Session.GetInt32("CustomerUserID").HasValue) return RedirectToAction(nameof(Login));
+        return View(new ChangePasswordViewModel());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel vm)
+    {
+        var userId = HttpContext.Session.GetInt32("CustomerUserID");
+        if (!userId.HasValue) return RedirectToAction(nameof(Login));
+        if (!ModelState.IsValid) return View(vm);
+        var user = await _db.NguoiDungs.FindAsync(userId.Value);
+        if (user == null) return NotFound();
+        if (!PasswordMatches(vm.MatKhauCu, user.matKhauHash))
+        {
+            ModelState.AddModelError(nameof(vm.MatKhauCu), "Mật khẩu hiện tại không đúng.");
+            return View(vm);
+        }
+        user.matKhauHash = HashDemo(vm.MatKhauMoi);
+        user.ngayCapNhat = DateTime.Now;
+        await _db.SaveChangesAsync();
+        TempData["Success"] = "Đổi mật khẩu thành công.";
+        return RedirectToAction(nameof(Profile));
+    }
+
     [HttpPost]
     public IActionResult Logout()
     {

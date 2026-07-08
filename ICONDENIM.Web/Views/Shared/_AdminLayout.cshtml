@@ -6,31 +6,33 @@
     <title>@ViewData["Title"] - Admin ICONDENIM</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="admin-body">
-<div class="admin-shell">
-    <aside class="admin-sidebar">
-        <a class="admin-brand" asp-controller="Admin" asp-action="Index">
+<body class="admin-body v2-admin-body">
+<div class="admin-shell v2-admin-shell">
+    <aside class="admin-sidebar v2-admin-sidebar">
+        <a class="admin-brand v2-admin-brand" asp-controller="Admin" asp-action="Index">
             <span class="brand-mark">ID</span>
-            <span>Admin</span>
+            <span><strong>ICONDENIM</strong><br/><small>Admin</small></span>
         </a>
-        <div class="admin-user">
+        <div class="admin-user v2-admin-user">
             <span>Xin chào</span>
             <b>@(Context.Session.GetString("AdminName") ?? "Quản trị viên")</b>
         </div>
-        <nav class="admin-menu">
-            <a asp-controller="Admin" asp-action="Index">📊 Tổng quan</a>
-            <a asp-controller="AdminProducts" asp-action="Index">👕 Quản lý hàng hóa</a>
-            <a asp-controller="AdminUsers" asp-action="Index">👤 Quản lý người dùng</a>
-            <a asp-controller="AdminOrders" asp-action="Index">📦 Quản lý đơn hàng</a>
-            <a asp-controller="AdminPromotions" asp-action="Index">🏷️ Mã khuyến mãi</a>
-            <a asp-controller="Home" asp-action="Index">↩ Về website</a>
+        <nav class="admin-menu v2-admin-menu">
+            <a asp-controller="Admin" asp-action="Index">Tổng quan</a>
+            <a asp-controller="AdminProducts" asp-action="Index">Quản lý hàng hóa</a>
+            <a asp-controller="AdminUsers" asp-action="Index">Quản lý người dùng</a>
+            <a asp-controller="AdminOrders" asp-action="Index">Quản lý đơn hàng</a>
+            <a asp-controller="AdminPromotions" asp-action="Index">Mã khuyến mãi</a>
+            <a asp-controller="AdminCustomerCare" asp-action="Index">Chăm sóc khách hàng</a>
+            <a asp-controller="AdminRevenue" asp-action="Index">Thống kê doanh thu</a>
+            <a asp-controller="Home" asp-action="Index">Về website</a>
         </nav>
-        <form asp-controller="Admin" asp-action="Logout" method="post" class="admin-logout">
-            <button>Đăng xuất Admin</button>
+        <form asp-controller="Admin" asp-action="Logout" method="post" class="admin-logout v2-admin-logout">
+            <button>Đăng xuất</button>
         </form>
     </aside>
-    <section class="admin-main">
-        <div class="admin-topbar">
+    <section class="admin-main v2-admin-main">
+        <div class="admin-topbar v2-admin-topbar">
             <div>
                 <span class="admin-eyebrow">ICONDENIM Management</span>
                 <h1>@ViewData["Title"]</h1>

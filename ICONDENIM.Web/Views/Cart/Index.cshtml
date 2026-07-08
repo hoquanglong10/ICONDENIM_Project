@@ -1,0 +1,62 @@
+@model CartViewModel
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+<section class="listing-hero compact cart-hero-v2">
+    <span class="eyebrow neutral-eyebrow">Giỏ hàng</span>
+    <h1>Giỏ hàng của bạn</h1>
+    <p>Kiểm tra sản phẩm, cập nhật số lượng và hoàn tất đơn hàng nhanh chóng.</p>
+</section>
+@if (TempData["Success"] != null) { <div class="alert success cart-alert">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert error cart-alert">@TempData["Error"]</div> }
+@if (!Model.Items.Any())
+{
+    <div class="empty-state cart-empty-state">Giỏ hàng đang trống. <a asp-controller="Products" asp-action="Search">Tiếp tục mua sắm</a></div>
+}
+else
+{
+    <div class="cart-layout cart-layout-v2">
+        <div class="cart-list cart-list-v2">
+            @foreach (var item in Model.Items)
+            {
+                <div class="cart-item-card cart-item-v2">
+                    <div class="cart-thumb-wrap">
+                        <img src="@(item.hinhAnh ?? "/images/products/placeholder.svg")" alt="@item.tenSanPham" />
+                    </div>
+                    <div class="cart-product-info">
+                        <h3>@item.tenSanPham</h3>
+                        <p class="cart-meta">@item.size · @item.mauSac · SKU: @item.sku</p>
+                        <div class="cart-stock-line">
+                            <span class="unit-price">@item.donGia.ToString("N0") đ</span>
+                            <span class="stock-text">Còn @item.soLuongTon sản phẩm</span>
+                        </div>
+                    </div>
+                    <form asp-action="Update" method="post" class="qty-form qty-form-v2">
+                        <input type="hidden" name="bienTheID" value="@item.bienTheID" />
+                        <label>Số lượng</label>
+                        <div class="qty-inline">
+                            <input type="number" name="soLuong" min="1" max="@item.soLuongTon" value="@item.soLuong" />
+                            <button>Cập nhật</button>
+                        </div>
+                    </form>
+                    <div class="cart-line-block">
+                        <span>Thành tiền</span>
+                        <div class="cart-line-total">@item.thanhTien.ToString("N0") đ</div>
+                    </div>
+                    <form asp-action="Remove" method="post" class="remove-form-v2">
+                        <input type="hidden" name="bienTheID" value="@item.bienTheID" />
+                        <button class="link-button danger">Xóa</button>
+                    </form>
+                </div>
+            }
+        </div>
+        <aside class="summary-card summary-card-v2">
+            <h2>Tóm tắt đơn hàng</h2>
+            <p><span>Tạm tính</span><b>@Model.TongTienHang.ToString("N0") đ</b></p>
+            <p><span>Phí vận chuyển</span><b>@Model.PhiVanChuyen.ToString("N0") đ</b></p>
+            <p class="total"><span>Thanh toán dự kiến</span><b>@Model.ThanhTien.ToString("N0") đ</b></p>
+            <a class="btn full" asp-action="Checkout">Tiến hành đặt hàng</a>
+            <a class="btn btn-glass full" asp-controller="Products" asp-action="Search">Mua thêm sản phẩm</a>
+        </aside>
+    </div>
+}

@@ -1,20 +1,24 @@
 @model SanPhamTrangChuView
-<article class="product-card modern-card">
+<article class="product-card clean-product-card">
     <a class="product-link" asp-controller="Products" asp-action="Details" asp-route-id="@Model.sanPhamID">
-        <div class="product-thumb">
+        <div class="product-thumb clean-thumb">
             <img src="@(Model.hinhAnhDaiDien ?? "/images/products/placeholder.svg")" alt="@Model.tenSanPham" />
-            <div class="badge-stack">
+            <div class="badge-stack clean-badges">
                 @if (Model.laHangHot) { <span>Hot</span> }
-                @if (Model.laHangBanChay) { <span>Bán chạy</span> }
+                @if (!Model.laHangHot && Model.laHangBanChay) { <span>Bán chạy</span> }
                 @if (Model.tongTonKho == 0) { <span class="soldout">Cháy hàng</span> }
             </div>
         </div>
-        <div class="product-info">
+        <div class="product-info clean-product-info">
             <p class="category">@Model.tenDanhMuc</p>
             <h3>@Model.tenSanPham</h3>
-            <div class="price-row">
+            @if (!string.IsNullOrWhiteSpace(Model.moTaNgan))
+            {
+                <p class="product-short">@Model.moTaNgan</p>
+            }
+            <div class="price-row clean-price-row">
                 <span class="price">@Model.giaHienThi.ToString("N0") đ</span>
-                <span class="stock-note">@(Model.tongTonKho > 0 ? "Còn " + Model.tongTonKho : "Hết hàng")</span>
+                <span class="stock-note">@(Model.tongTonKho > 0 ? "Còn hàng" : "Hết hàng")</span>
             </div>
         </div>
     </a>

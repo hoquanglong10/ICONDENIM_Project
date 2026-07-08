@@ -8,49 +8,111 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-<header class="site-header">
-    <div class="nav-shell">
-        <a class="brand" asp-controller="Home" asp-action="Index">
-            <span class="brand-mark">ID</span>
-            <span>ICONDENIM</span>
-        </a>
-        <nav class="main-nav">
-            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
-            <a asp-controller="Products" asp-action="Search">Sản phẩm</a>
-            <a asp-controller="Products" asp-action="Search" asp-route-q="denim">Denim</a>
-            <a asp-controller="Products" asp-action="Search" asp-route-q="hot">Hàng hot</a>
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<header class="store-header">
+    <div class="store-nav-shell">
+        <a class="store-logo" asp-controller="Home" asp-action="Index">icondenim</a>
+
+        <nav class="store-main-nav">
+            <a asp-controller="Products" asp-action="Search">Sản phẩm <span>⌄</span></a>
+            <a asp-controller="Products" asp-action="Search" asp-route-q="moi">Hàng Mới <em>New</em></a>
+            <a asp-controller="Products" asp-action="Search" asp-route-banChay="true">Hàng Bán Chạy</a>
+            <a asp-controller="Products" asp-action="Search" asp-route-q="denim">DENIM <span>⌄</span></a>
+            <a class="sale-link" asp-controller="Products" asp-action="Search" asp-route-q="sale">SALE 7.7</a>
+            <a asp-controller="Products" asp-action="Search" asp-route-q="collection">Collection <span>⌄</span></a>
         </nav>
-        <form asp-controller="Products" asp-action="Search" method="get" class="top-search">
-            <input name="q" placeholder="Tìm áo, jeans, denim..." />
-            <button aria-label="Tìm kiếm">⌕</button>
-        </form>
-        <div class="nav-actions">
+
+        <div class="store-actions store-actions-v4 icon-only-actions">
+            <button class="header-action search-toggle icon-only" type="button" aria-label="Tìm kiếm" title="Tìm kiếm">
+                <span class="header-action-icon search-shape"></span>
+            </button>
             @if (Context.Session.GetInt32("CustomerUserID").HasValue)
             {
-                <span class="hello-user">@Context.Session.GetString("CustomerName")</span>
+                <a class="header-action icon-only" asp-controller="Account" asp-action="Profile" aria-label="Tài khoản" title="Tài khoản">
+                    <span class="header-action-icon user-shape"></span>
+                </a>
+                <a class="header-action icon-only" asp-controller="Orders" asp-action="MyOrders" aria-label="Đơn hàng" title="Đơn hàng">
+                    <span class="header-action-icon order-shape"></span>
+                </a>
                 <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
-                    <button class="link-button">Đăng xuất</button>
+                    <button class="header-action logout-action icon-only" aria-label="Đăng xuất" title="Đăng xuất" type="submit">
+                        <span class="header-action-icon logout-shape"></span>
+                    </button>
                 </form>
             }
             else
             {
-                <a class="ghost-link" asp-controller="Account" asp-action="Login">Đăng nhập</a>
-                <a class="pill-link" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                <a class="header-action icon-only" asp-controller="Account" asp-action="Login" aria-label="Tài khoản" title="Tài khoản">
+                    <span class="header-action-icon user-shape"></span>
+                </a>
             }
-            <a class="admin-entry" asp-controller="Admin" asp-action="Login">Admin</a>
+            <a class="header-action cart-action-v4 icon-only" asp-controller="Cart" asp-action="Index" aria-label="Giỏ hàng" title="Giỏ hàng">
+                <span class="header-action-icon bag-shape"></span>
+                <small>@(Context.Session.GetInt32("CartCount") ?? 0)</small>
+            </a>
         </div>
     </div>
+    <div class="store-search-overlay" id="headerSearchOverlay">
+        <form asp-controller="Products" asp-action="Search" method="get" class="header-search-panel">
+            <div class="header-search-input-wrap">
+                <input name="q" placeholder="Tìm sản phẩm, quần jeans, áo thun, denim..." />
+            </div>
+            <button type="submit" class="header-search-submit">Tìm kiếm</button>
+        </form>
+    </div>
 </header>
-<main class="page-wrap">
+<main class="page-wrap clean-page-wrap">
+    @if (!(currentController == "Cart" && TempData["Success"] != null))
+    {
+        @if (TempData["Success"] != null) { <div class="alert success global-alert">@TempData["Success"]</div> }
+    }
+    @if (TempData["Error"] != null) { <div class="alert error global-alert">@TempData["Error"]</div> }
     @RenderBody()
 </main>
-<footer class="site-footer">
-    <div>
+<footer class="site-footer clean-footer footer-v4">
+    <div class="footer-brand-v4">
         <b>ICONDENIM</b>
-        <p>Website bán quần áo | COD/VNPay | Giao hàng toàn quốc | Đổi hàng 7 ngày</p>
+        <p>Thời trang nam tối giản, dễ mặc, tập trung vào denim và các sản phẩm everyday wear.</p>
     </div>
-    <span>Hotline 028-7306-8499</span>
+    <div class="footer-links-v4">
+        <div>
+            <h4>Mua sắm</h4>
+            <a asp-controller="Products" asp-action="Search">Tất cả sản phẩm</a>
+            <a asp-controller="Products" asp-action="Search" asp-route-q="denim">Denim</a>
+            <a asp-controller="Products" asp-action="Search" asp-route-banChay="true">Bán chạy</a>
+        </div>
+        <div>
+            <h4>Hỗ trợ</h4>
+            <a asp-controller="Orders" asp-action="Track">Theo dõi đơn</a>
+            <a asp-controller="Support" asp-action="Create">Hỏi đáp</a>
+            <a asp-controller="Account" asp-action="Login">Tài khoản</a>
+        </div>
+        <div>
+            <h4>Liên hệ</h4>
+            <p>Hotline 028-7306-8499</p>
+            <p>COD / VNPay · Đổi hàng 7 ngày</p>
+            <a asp-controller="Admin" asp-action="Login">Admin</a>
+        </div>
+    </div>
 </footer>
 @RenderSection("Scripts", required: false)
+<script>
+    const searchToggle = document.querySelector('.search-toggle');
+    const searchOverlay = document.querySelector('.store-search-overlay');
+    const searchInput = document.querySelector('.header-search-panel input');
+    searchToggle?.addEventListener('click', function () {
+        searchOverlay?.classList.toggle('show');
+        setTimeout(() => searchInput?.focus(), 50);
+    });
+    document.addEventListener('click', function(e){
+        if(!searchOverlay || !searchToggle) return;
+        if(searchOverlay.contains(e.target) || searchToggle.contains(e.target)) return;
+        searchOverlay.classList.remove('show');
+    });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ searchOverlay?.classList.remove('show'); }});
+</script>
 </body>
 </html>

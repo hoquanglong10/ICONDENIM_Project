@@ -1,0 +1,45 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Đặt hàng";
+}
+<section class="checkout-head-v4">
+    <span>Checkout</span>
+    <h1>Thông tin đặt hàng</h1>
+    <p>Hỗ trợ đặt hàng cho cả khách đã đăng nhập và khách vãng lai.</p>
+</section>
+@if (TempData["Error"] != null) { <div class="alert error checkout-alert-v4">@TempData["Error"]</div> }
+<form asp-action="Checkout" method="post" class="checkout-layout-v4">
+    <div class="checkout-form-v4">
+        <h2>Thông tin nhận hàng</h2>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="checkout-grid-v4">
+            <div class="field-v4"><label asp-for="HoTenNhan"></label><input asp-for="HoTenNhan" placeholder="Họ tên người nhận" /><span asp-validation-for="HoTenNhan"></span></div>
+            <div class="field-v4"><label asp-for="SdtNhan"></label><input asp-for="SdtNhan" placeholder="Số điện thoại" /><span asp-validation-for="SdtNhan"></span></div>
+            <div class="field-v4 full"><label asp-for="DiaChiNhan"></label><textarea asp-for="DiaChiNhan" placeholder="Địa chỉ nhận hàng"></textarea><span asp-validation-for="DiaChiNhan"></span></div>
+            <div class="field-v4"><label asp-for="MaKhuyenMai"></label><input asp-for="MaKhuyenMai" placeholder="VD: SUMMER10" /></div>
+            <div class="field-v4"><label asp-for="PhuongThucThanhToan"></label>
+                <select asp-for="PhuongThucThanhToan">
+                    <option value="COD">COD - thanh toán khi nhận hàng</option>
+                    <option value="VNPay">VNPay - thanh toán trực tuyến demo</option>
+                    <option value="MoMo">MoMo - thanh toán trực tuyến demo</option>
+                    <option value="Banking">Chuyển khoản ngân hàng demo</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn dark-btn checkout-submit-v4">Đặt hàng</button>
+    </div>
+    <aside class="checkout-summary-v4">
+        <h2>Sản phẩm trong đơn</h2>
+        <div class="checkout-items-v4">
+            @foreach (var item in Model.Cart.Items)
+            {
+                <div class="checkout-item-v4"><span>@item.tenSanPham x @item.soLuong</span><b>@item.thanhTien.ToString("N0") đ</b></div>
+            }
+        </div>
+        <div class="summary-lines-v4">
+            <p><span>Tạm tính</span><b>@Model.Cart.TongTienHang.ToString("N0") đ</b></p>
+            <p><span>Phí vận chuyển</span><b>@Model.Cart.PhiVanChuyen.ToString("N0") đ</b></p>
+            <p class="total"><span>Tổng dự kiến</span><b>@Model.Cart.ThanhTien.ToString("N0") đ</b></p>
+        </div>
+    </aside>
+</form>

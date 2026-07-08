@@ -1,0 +1,32 @@
+@model List<DonHang>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+<section class="listing-hero compact">
+    <span class="eyebrow">My orders</span><h1>Lịch sử mua hàng</h1>
+    <form method="get" class="search-panel compact-form">
+        <input type="date" name="tuNgay" value="@ViewBag.TuNgay" />
+        <input type="date" name="denNgay" value="@ViewBag.DenNgay" />
+        <button class="btn">Lọc</button>
+    </form>
+</section>
+@if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert error">@TempData["Error"]</div> }
+<div class="table-card">
+<table class="admin-table">
+    <thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Trạng thái</th><th>Thanh toán</th><th>Thành tiền</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var o in Model)
+    {
+        <tr>
+            <td><b>@o.maDonHang</b></td>
+            <td>@o.ngayDat.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@o.trangThaiDonHang / @o.trangThaiGiaoHang</td>
+            <td>@o.phuongThucThanhToan - @o.trangThaiThanhToan</td>
+            <td>@o.thanhTien.ToString("N0") đ</td>
+            <td><a asp-action="Details" asp-route-id="@o.donHangID">Chi tiết</a></td>
+        </tr>
+    }
+    </tbody>
+</table>
+</div>

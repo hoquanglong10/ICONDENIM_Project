@@ -1,0 +1,28 @@
+@model RevenueReportViewModel
+@{
+    ViewData["Title"] = "Thống kê doanh thu";
+    var tuNgay = Model.TuNgay?.ToString("yyyy-MM-dd");
+    var denNgay = Model.DenNgay?.ToString("yyyy-MM-dd");
+}
+<section class="admin-panel">
+    <div class="panel-header"><div><span class="eyebrow">Revenue</span><h2>Thống kê doanh thu và công nợ</h2></div></div>
+    <form method="get" class="admin-filter multi">
+        <input type="date" name="tuNgay" value="@tuNgay" />
+        <input type="date" name="denNgay" value="@denNgay" />
+        <select name="trangThaiDonHang"><option value="">Tất cả trạng thái</option><option>ChoXacNhan</option><option>DaDuyet</option><option>DangGiao</option><option>GiaoThanhCong</option><option>GiaoThatBai</option><option>DaHuy</option></select>
+        <select name="phuongThucThanhToan"><option value="">Tất cả thanh toán</option><option>COD</option><option>VNPay</option><option>MoMo</option><option>Banking</option></select>
+        <button class="btn btn-dark">Thống kê</button>
+    </form>
+    <div class="stat-grid">
+        <div class="stat-card"><span>Tổng đơn</span><b>@Model.TongSoDon</b></div>
+        <div class="stat-card"><span>Doanh thu đã thu</span><b>@Model.TongDoanhThu.ToString("N0") đ</b></div>
+        <div class="stat-card"><span>Công nợ</span><b>@Model.TongCongNo.ToString("N0") đ</b></div>
+        <div class="stat-card"><span>COD / Online</span><b>@Model.DonCOD / @Model.DonOnline</b></div>
+    </div>
+    <div class="table-card"><table class="modern-table"><thead><tr><th>Mã đơn</th><th>Ngày</th><th>Trạng thái</th><th>Thanh toán</th><th>Đã thu</th><th>Thành tiền</th></tr></thead><tbody>
+    @foreach (var o in Model.DonHangs)
+    {
+        <tr><td>@o.maDonHang</td><td>@o.ngayDat.ToString("dd/MM/yyyy")</td><td>@o.trangThaiDonHang</td><td>@o.phuongThucThanhToan</td><td>@(o.daThuTien ? "Đã thu" : "Chưa thu")</td><td>@o.thanhTien.ToString("N0") đ</td></tr>
+    }
+    </tbody></table></div>
+</section>

@@ -1,0 +1,18 @@
+@model SupportRequestViewModel
+@{
+    ViewData["Title"] = "Chăm sóc khách hàng";
+}
+<section class="listing-hero compact"><span class="eyebrow">Customer care</span><h1>Gửi yêu cầu hỗ trợ</h1><p>Hỏi đáp sản phẩm, phản hồi đơn hàng, yêu cầu đổi trả hoặc bảo hành.</p></section>
+<form asp-action="Create" method="post" class="form-card narrow">
+    <input asp-for="sanPhamID" type="hidden" />
+    <input asp-for="donHangID" type="hidden" />
+    <label>Loại yêu cầu</label>
+    <select asp-for="loaiYeuCau">
+        <option value="HoiDap">Hỏi đáp sản phẩm</option>
+        <option value="DonHang">Hỗ trợ đơn hàng</option>
+        <option value="DoiTra">Đổi trả</option>
+        <option value="BaoHanh">Bảo hành</option>
+    </select>
+    <label>Nội dung</label><textarea asp-for="noiDung" rows="6" placeholder="Nhập nội dung cần hỗ trợ..."></textarea><span asp-validation-for="noiDung"></span>
+    <button class="btn">Gửi yêu cầu</button>
+</form>

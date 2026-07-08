@@ -111,5 +111,109 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(x => x.bienTheID)
             .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<DiaChiNguoiDung>()
+            .HasOne(x => x.NguoiDung)
+            .WithMany()
+            .HasForeignKey(x => x.userID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<GioHang>()
+            .HasOne(x => x.NguoiDung)
+            .WithMany()
+            .HasForeignKey(x => x.userID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChiTietGioHang>()
+            .HasOne(x => x.GioHang)
+            .WithMany(x => x.ChiTietGioHangs)
+            .HasForeignKey(x => x.gioHangID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChiTietGioHang>()
+            .HasOne(x => x.BienTheSanPham)
+            .WithMany()
+            .HasForeignKey(x => x.bienTheID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DonHang>()
+            .Property(x => x.thanhTien)
+            .HasComputedColumnSql("[tongTienHang] + [phiVanChuyen] - [giamGia]", stored: true);
+
+        modelBuilder.Entity<ChiTietDonHang>()
+            .Property(x => x.thanhTien)
+            .HasComputedColumnSql("[soLuong] * [donGia]", stored: true);
+
+        modelBuilder.Entity<DonHang>()
+            .HasOne<KhuyenMai>()
+            .WithMany()
+            .HasForeignKey(x => x.khuyenMaiID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ThanhToan>()
+            .HasOne(x => x.DonHang)
+            .WithMany()
+            .HasForeignKey(x => x.donHangID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<LichSuTonKho>()
+            .HasOne(x => x.BienTheSanPham)
+            .WithMany()
+            .HasForeignKey(x => x.bienTheID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DanhGia>()
+            .HasOne<NguoiDung>()
+            .WithMany()
+            .HasForeignKey(x => x.userID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DanhGia>()
+            .HasOne<SanPham>()
+            .WithMany()
+            .HasForeignKey(x => x.sanPhamID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DanhGia>()
+            .HasOne<DonHang>()
+            .WithMany()
+            .HasForeignKey(x => x.donHangID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ChamSocKhachHang>()
+            .HasOne<NguoiDung>()
+            .WithMany()
+            .HasForeignKey(x => x.userID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ChamSocKhachHang>()
+            .HasOne<SanPham>()
+            .WithMany()
+            .HasForeignKey(x => x.sanPhamID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ChamSocKhachHang>()
+            .HasOne<DonHang>()
+            .WithMany()
+            .HasForeignKey(x => x.donHangID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<BaoHanh>()
+            .HasOne<NguoiDung>()
+            .WithMany()
+            .HasForeignKey(x => x.userID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<BaoHanh>()
+            .HasOne<DonHang>()
+            .WithMany()
+            .HasForeignKey(x => x.donHangID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<BaoHanh>()
+            .HasOne<SanPham>()
+            .WithMany()
+            .HasForeignKey(x => x.sanPhamID)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

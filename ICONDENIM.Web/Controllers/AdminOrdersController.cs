@@ -13,13 +13,16 @@ public class AdminOrdersController : Controller
     private readonly AppDbContext _db;
     public AdminOrdersController(AppDbContext db) { _db = db; }
 
-    public async Task<IActionResult> Index(DateTime? tuNgay, DateTime? denNgay, string? trangThai)
+    public async Task<IActionResult> Index(DateTime? tuNgay, DateTime? denNgay, string? trangThai, string? trangThaiGiaoHang, string? phuongThucThanhToan, bool? daThuTien)
     {
         var query = _db.DonHangs.Include(x => x.NguoiDung).Include(x => x.NguoiGiao).AsQueryable();
         if (tuNgay.HasValue) query = query.Where(x => x.ngayDat >= tuNgay.Value);
         if (denNgay.HasValue) query = query.Where(x => x.ngayDat < denNgay.Value.AddDays(1));
         if (!string.IsNullOrWhiteSpace(trangThai)) query = query.Where(x => x.trangThaiDonHang == trangThai);
-        ViewBag.TuNgay = tuNgay?.ToString("yyyy-MM-dd"); ViewBag.DenNgay = denNgay?.ToString("yyyy-MM-dd"); ViewBag.TrangThai = trangThai;
+        if (!string.IsNullOrWhiteSpace(trangThaiGiaoHang)) query = query.Where(x => x.trangThaiGiaoHang == trangThaiGiaoHang);
+        if (!string.IsNullOrWhiteSpace(phuongThucThanhToan)) query = query.Where(x => x.phuongThucThanhToan == phuongThucThanhToan);
+        if (daThuTien.HasValue) query = query.Where(x => x.daThuTien == daThuTien.Value);
+        ViewBag.TuNgay = tuNgay?.ToString("yyyy-MM-dd"); ViewBag.DenNgay = denNgay?.ToString("yyyy-MM-dd"); ViewBag.TrangThai = trangThai; ViewBag.TrangThaiGiaoHang = trangThaiGiaoHang; ViewBag.PhuongThucThanhToan = phuongThucThanhToan; ViewBag.DaThuTien = daThuTien;
         return View(await query.OrderByDescending(x => x.ngayDat).ToListAsync());
     }
 
@@ -43,6 +46,27 @@ public class AdminOrdersController : Controller
             new SqlParameter("@trangThaiGiaoHang", (object?)vm.trangThaiGiaoHang ?? DBNull.Value), new SqlParameter("@daThuTien", (object?)vm.daThuTien ?? DBNull.Value),
             new SqlParameter("@nguoiGiaoID", (object?)vm.nguoiGiaoID ?? DBNull.Value), new SqlParameter("@ghiChu", (object?)vm.ghiChu ?? DBNull.Value));
         return RedirectToAction(nameof(Details), new { id = vm.donHangID });
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> Approve(int id)
+    {
+        await _db.Database.ExecuteSqlRawAsync("EXEC dbo.sp_CapNhatTrangThaiDonHang @donHangID, @trangThaiDonHang, @trangThaiGiaoHang, @daThuTien, @nguoiGiaoID, @ghiChu",
+            new SqlParameter("@donHangID", id), new SqlParameter("@trangThaiDonHang", "DaDuyet"),
+            new SqlParameter("@trangThaiGiaoHang", "ChuaGiao"), new SqlParameter("@daThuTien", DBNull.Value),
+            new SqlParameter("@nguoiGiaoID", DBNull.Value), new SqlParameter("@ghiChu", "Admin duyệt đơn"));
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> MarkDelivered(int id, bool daThuTien = true)
+    {
+        await _db.Database.ExecuteSqlRawAsync("EXEC dbo.sp_CapNhatTrangThaiDonHang @donHangID, @trangThaiDonHang, @trangThaiGiaoHang, @daThuTien, @nguoiGiaoID, @ghiChu",
+            new SqlParameter("@donHangID", id), new SqlParameter("@trangThaiDonHang", "GiaoThanhCong"),
+            new SqlParameter("@trangThaiGiaoHang", "GiaoThanhCong"), new SqlParameter("@daThuTien", daThuTien),
+            new SqlParameter("@nguoiGiaoID", DBNull.Value), new SqlParameter("@ghiChu", daThuTien ? "Giao thành công - đã thu tiền" : "Giao thành công - chưa thu tiền"));
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]

@@ -1,0 +1,25 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+}
+<section class="listing-hero compact"><span class="eyebrow">Member account</span><h1>Thông tin khách hàng thân thiết</h1><p>Xem điểm tích lũy, hạng khách hàng và cập nhật thông tin giao hàng.</p></section>
+@if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+<div class="profile-grid">
+    <form asp-action="Profile" method="post" class="form-card">
+        <input asp-for="userID" type="hidden" />
+        <label>Họ tên</label><input asp-for="hoTen" />
+        <label>Số điện thoại</label><input asp-for="soDienThoai" />
+        <label>Email</label><input asp-for="email" />
+        <label>Ngày sinh</label><input asp-for="ngaySinh" type="date" />
+        <label>Địa chỉ giao hàng mặc định</label><textarea asp-for="diaChiGiaoHang"></textarea>
+        <button class="btn">Cập nhật thông tin</button>
+    </form>
+    <aside class="summary-card member-card">
+        <h2>Thành viên</h2>
+        <p><span>Loại khách hàng</span><b>@(Model.loaiKhachHang ?? "Khách hàng")</b></p>
+        <p><span>Điểm tích lũy</span><b>@Model.diemTichLuy điểm</b></p>
+        <p><span>Ưu đãi</span><b>Nhận mã giảm giá theo hạng thành viên</b></p>
+        <a class="btn full" asp-controller="Orders" asp-action="MyOrders">Xem đơn hàng</a>
+        <a class="btn btn-glass full" asp-action="ChangePassword">Đổi mật khẩu</a>
+    </aside>
+</div>

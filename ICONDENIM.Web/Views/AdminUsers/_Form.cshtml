@@ -10,6 +10,7 @@
         <label>Ngày sinh<input asp-for="ngaySinh" type="date" /></label>
         <label>Điểm tích lũy<input asp-for="diemTichLuy" /></label>
         <label>Trạng thái<select asp-for="trangThai"><option>HoatDong</option><option>BiKhoa</option></select></label>
+        <label class="full">Địa chỉ giao hàng mặc định<textarea name="diaChiGiaoHang" rows="3">@ViewBag.DiaChiGiaoHang</textarea></label>
     </div>
     <button class="btn">Lưu người dùng</button>
 </div>

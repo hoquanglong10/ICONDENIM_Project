@@ -1,0 +1,17 @@
+@model DonHang
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+}
+<section class="success-page">
+    <div class="success-card">
+        <span class="success-icon">✓</span>
+        <h1>Đặt hàng thành công</h1>
+        <p>@TempData["Success"]</p>
+        <div class="order-code">Mã đơn hàng: <b>@Model.maDonHang</b></div>
+        <p>Khách hàng có thể theo dõi đơn hàng bằng mã đơn hoặc số điện thoại: <b>@Model.sdtNhan</b>.</p>
+        <div class="hero-actions">
+            <a class="btn" asp-controller="Orders" asp-action="Details" asp-route-id="@Model.donHangID" asp-route-phone="@Model.sdtNhan">Xem đơn hàng</a>
+            <a class="btn btn-glass" asp-controller="Home" asp-action="Index">Về trang chủ</a>
+        </div>
+    </div>
+</section>

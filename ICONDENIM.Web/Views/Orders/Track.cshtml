@@ -1,0 +1,36 @@
+@model OrderTrackingViewModel
+@{
+    ViewData["Title"] = "Theo dõi đơn hàng";
+}
+<section class="listing-hero compact">
+    <span class="eyebrow">Order tracking</span>
+    <h1>Theo dõi đơn hàng</h1>
+    <p>Nhập số điện thoại hoặc mã đơn hàng để xem lịch sử mua hàng, áp dụng cho cả khách vãng lai.</p>
+    <form asp-action="Track" method="post" class="search-panel">
+        <input asp-for="Keyword" placeholder="SĐT hoặc mã đơn hàng" />
+        <button class="btn">Tra cứu</button>
+    </form>
+</section>
+@if (TempData["Error"] != null) { <div class="alert error">@TempData["Error"]</div> }
+@if (Model.DonHangs.Any())
+{
+    <div class="table-card">
+        <table class="admin-table">
+            <thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Người nhận</th><th>Trạng thái</th><th>Thanh toán</th><th>Tổng tiền</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var o in Model.DonHangs)
+            {
+                <tr>
+                    <td><b>@o.maDonHang</b></td>
+                    <td>@o.ngayDat.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@o.hoTenNhan<br/><small>@o.sdtNhan</small></td>
+                    <td>@o.trangThaiDonHang / @o.trangThaiGiaoHang</td>
+                    <td>@o.phuongThucThanhToan - @o.trangThaiThanhToan</td>
+                    <td>@o.thanhTien.ToString("N0") đ</td>
+                    <td><a asp-action="Details" asp-route-id="@o.donHangID" asp-route-phone="@o.sdtNhan">Chi tiết</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

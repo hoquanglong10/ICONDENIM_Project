@@ -6,67 +6,94 @@
         ?? Model.SanPham.hinhAnhDaiDien
         ?? "/images/products/placeholder.svg";
 }
-<section class="product-detail-page">
-    <div class="gallery-card">
-        <img class="detail-main-img" src="@mainImg" alt="@Model.SanPham.tenSanPham" />
+<section class="product-detail-v4">
+    <div class="detail-gallery-v4">
+        <div class="main-image-frame-v4">
+            <img src="@mainImg" alt="@Model.SanPham.tenSanPham" />
+        </div>
         @if (Model.HinhAnhs.Any())
         {
-            <div class="mini-gallery">
-                @foreach (var img in Model.HinhAnhs.Take(4))
+            <div class="thumb-row-v4">
+                @foreach (var img in Model.HinhAnhs.Take(5))
                 {
                     <img src="@img.duongDanAnh" alt="Ảnh @Model.SanPham.tenSanPham" />
                 }
             </div>
         }
     </div>
-    <div class="detail-info-card">
-        <span class="eyebrow">@Model.SanPham.DanhMuc?.tenDanhMuc</span>
+
+    <div class="detail-info-v4">
+        <div class="product-meta-top-v4">
+            <span>@Model.SanPham.DanhMuc?.tenDanhMuc</span>
+            <span>Mã: @Model.SanPham.maSanPham</span>
+        </div>
         <h1>@Model.SanPham.tenSanPham</h1>
-        <p class="sku-line">Mã sản phẩm: <b>@Model.SanPham.maSanPham</b></p>
-        <div class="detail-price">@((Model.SanPham.giaKhuyenMai ?? Model.SanPham.giaGoc).ToString("N0")) đ</div>
+        <div class="detail-price-v4">@((Model.SanPham.giaKhuyenMai ?? Model.SanPham.giaGoc).ToString("N0")) đ</div>
         @if (Model.SanPham.giaKhuyenMai.HasValue)
         {
-            <p class="old-price">Giá gốc: @Model.SanPham.giaGoc.ToString("N0") đ</p>
+            <p class="old-price-v4">Giá gốc: @Model.SanPham.giaGoc.ToString("N0") đ</p>
         }
-        @if (Model.LaChayHang)
-        {
-            <div class="soldout-box large">Cháy hàng</div>
-        }
-        else
-        {
-            <div class="stock-pill">Còn @Model.TongTonKho sản phẩm</div>
-        }
+        <div class="status-row-v4">
+            @if (Model.LaChayHang)
+            {
+                <span class="status-pill-v4 soldout">Cháy hàng</span>
+            }
+            else
+            {
+                <span class="status-pill-v4 instock">Còn @Model.TongTonKho sản phẩm</span>
+            }
+        </div>
 
-        <div class="variant-section">
-            <h3>Biến thể size / màu</h3>
-            <div class="variant-grid">
+        <div class="variant-section-v4">
+            <h3>Size / màu hiện có</h3>
+            <div class="variant-grid-v4">
                 @foreach (var v in Model.BienThes)
                 {
-                    <span class="variant-chip @(v.soLuongTon == 0 ? "disabled" : "")">@v.size · @v.mauSac <small>@v.soLuongTon</small></span>
+                    <span class="variant-chip-v4 @(v.soLuongTon == 0 ? "disabled" : "")">
+                        <b>@v.size</b> @v.mauSac <small>@v.soLuongTon</small>
+                    </span>
                 }
             </div>
         </div>
 
-        <div class="buy-box">
-            <button class="btn" disabled="@Model.LaChayHang">Thêm vào giỏ</button>
-            <button class="btn btn-dark" disabled="@Model.LaChayHang">Mua ngay</button>
+        @if (!Model.LaChayHang)
+        {
+            <form asp-controller="Cart" asp-action="Add" method="post" class="buy-form-v4">
+                <label>Chọn phân loại</label>
+                <select name="bienTheID">
+                    @foreach (var v in Model.BienThes.Where(x => x.soLuongTon > 0))
+                    {
+                        <option value="@v.bienTheID">@v.size - @v.mauSac (@v.soLuongTon còn) - @((v.giaKhuyenMai ?? v.giaBan).ToString("N0")) đ</option>
+                    }
+                </select>
+                <label>Số lượng</label>
+                <input type="number" name="soLuong" value="1" min="1" />
+                <div class="buy-actions-v4">
+                    <button class="btn primary-btn" name="muaNgay" value="false">Thêm vào giỏ</button>
+                    <button class="btn dark-btn" name="muaNgay" value="true">Mua ngay</button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="buy-actions-v4"><button class="btn dark-btn" disabled>Cháy hàng</button></div>
+        }
+
+        <div class="benefit-list-v4">
+            <div><b>Đổi hàng 7 ngày</b><span>Hỗ trợ đổi size/màu nếu còn hàng</span></div>
+            <div><b>Thanh toán linh hoạt</b><span>COD, VNPay, MoMo demo</span></div>
+            <div><b>Tích điểm thành viên</b><span>Ưu đãi riêng cho khách hàng thân thiết</span></div>
         </div>
-        <div class="product-benefits">
-            <span>✓ Đổi hàng 7 ngày</span>
-            <span>✓ Thanh toán COD/VNPay</span>
-            <span>✓ Tích điểm thành viên</span>
-        </div>
+        <a class="support-link-v4" asp-controller="Support" asp-action="Create" asp-route-sanPhamID="@Model.SanPham.sanPhamID">Hỏi đáp về sản phẩm này</a>
     </div>
 </section>
 
-<section class="detail-description">
-    <div>
-        <span class="eyebrow">Description</span>
-        <h2>Mô tả sản phẩm</h2>
+<section class="detail-lower-v4">
+    <article>
+        <h2>Thông tin sản phẩm</h2>
         <p>@(Model.SanPham.moTaChiTiet ?? Model.SanPham.moTaNgan ?? "Sản phẩm thời trang ICONDENIM với thiết kế dễ phối, phù hợp sử dụng hằng ngày.")</p>
-    </div>
-    <div>
-        <span class="eyebrow">Reviews</span>
+    </article>
+    <article>
         <h2>Đánh giá sản phẩm</h2>
         @if (!Model.DanhGias.Any())
         {
@@ -76,8 +103,8 @@
         {
             foreach (var dg in Model.DanhGias)
             {
-                <div class="review"><b>@dg.soSao sao</b><span>@dg.noiDung</span></div>
+                <div class="review-v4"><b>@dg.soSao sao</b><span>@dg.noiDung</span></div>
             }
         }
-    </div>
+    </article>
 </section>

@@ -24,7 +24,7 @@ public class ProductsController : Controller
         return View(vm);
     }
 
-    public async Task<IActionResult> Search(string? q, int? danhMucID)
+    public async Task<IActionResult> Search(string? q, int? danhMucID, decimal? giaTu, decimal? giaDen, bool? hangHot, bool? banChay)
     {
         var query = _db.SanPhamTrangChuViews.AsQueryable();
         if (!string.IsNullOrWhiteSpace(q)) query = query.Where(x => x.tenSanPham.Contains(q) || x.maSanPham.Contains(q) || x.tenDanhMuc.Contains(q));
@@ -33,7 +33,17 @@ public class ProductsController : Controller
             var dm = await _db.DanhMucs.FindAsync(danhMucID.Value);
             if (dm != null) query = query.Where(x => x.tenDanhMuc == dm.tenDanhMuc);
         }
+        if (giaTu.HasValue) query = query.Where(x => x.giaHienThi >= giaTu.Value);
+        if (giaDen.HasValue) query = query.Where(x => x.giaHienThi <= giaDen.Value);
+        if (hangHot == true) query = query.Where(x => x.laHangHot);
+        if (banChay == true) query = query.Where(x => x.laHangBanChay);
+        query = query.Where(x => x.choPhepHienThi && x.trangThai == "DangBan" && (x.tongTonKho > 0 || x.laHangHot));
         ViewBag.Keyword = q;
-        return View(await query.OrderByDescending(x => x.laHangHot).ToListAsync());
+        ViewBag.GiaTu = giaTu;
+        ViewBag.GiaDen = giaDen;
+        ViewBag.HangHot = hangHot;
+        ViewBag.BanChay = banChay;
+        ViewBag.DanhMucs = await _db.DanhMucs.Where(x => x.trangThai).OrderBy(x => x.thuTuHienThi).ToListAsync();
+        return View(await query.OrderByDescending(x => x.laHangHot).ThenBy(x => x.giaHienThi).ToListAsync());
     }
 }

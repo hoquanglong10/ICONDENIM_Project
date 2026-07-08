@@ -1,0 +1,15 @@
+@model List<BaoHanh>
+@{
+    ViewData["Title"] = "Quản lý bảo hành";
+}
+<section class="admin-panel">
+    <div class="panel-header"><div><span class="eyebrow">Warranty</span><h2>Yêu cầu bảo hành sản phẩm</h2></div><a asp-action="Index" class="btn btn-glass">Yêu cầu CSKH</a></div>
+    @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+    <form method="get" class="admin-filter multi"><select name="trangThai"><option value="">Tất cả</option><option>TiepNhan</option><option>DangXuLy</option><option>HoanTat</option><option>TuChoi</option></select><button class="btn btn-dark">Lọc</button></form>
+    <div class="table-card"><table class="modern-table"><thead><tr><th>ID</th><th>User</th><th>Đơn</th><th>Sản phẩm</th><th>Lý do</th><th>Ngày tiếp nhận</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+    @foreach (var b in Model)
+    {
+        <tr><td>@b.baoHanhID</td><td>@b.userID</td><td>@b.donHangID</td><td>@b.sanPhamID</td><td>@b.lyDo</td><td>@b.ngayTiepNhan.ToString("dd/MM/yyyy")</td><td>@b.trangThai</td><td><form asp-action="UpdateWarranty" method="post" class="inline-form"><input type="hidden" name="id" value="@b.baoHanhID"/><select name="trangThai"><option>DangXuLy</option><option>HoanTat</option><option>TuChoi</option></select><button>Lưu</button></form></td></tr>
+    }
+    </tbody></table></div>
+</section>

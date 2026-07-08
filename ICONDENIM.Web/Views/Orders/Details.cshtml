@@ -1,0 +1,54 @@
+@model DonHang
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    var phone = ViewBag.Phone as string;
+}
+<section class="listing-hero compact"><span class="eyebrow">Order detail</span><h1>Đơn hàng @Model.maDonHang</h1><p>Trạng thái: <b>@Model.trangThaiDonHang</b> / @Model.trangThaiGiaoHang</p></section>
+@if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert error">@TempData["Error"]</div> }
+<div class="order-detail-grid">
+    <div class="table-card">
+        <h2>Sản phẩm trong đơn</h2>
+        <table class="admin-table">
+            <thead><tr><th>Sản phẩm</th><th>Size/Màu</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th><th>Đánh giá</th></tr></thead>
+            <tbody>
+            @foreach (var ct in Model.ChiTietDonHangs ?? new List<ChiTietDonHang>())
+            {
+                <tr>
+                    <td>@ct.tenSanPhamSnapshot<br/><small>@ct.skuSnapshot</small></td>
+                    <td>@ct.sizeSnapshot / @ct.mauSacSnapshot</td>
+                    <td>@ct.soLuong</td>
+                    <td>@ct.donGia.ToString("N0") đ</td>
+                    <td>@ct.thanhTien.ToString("N0") đ</td>
+                    <td>
+                        @if (Model.trangThaiDonHang == "GiaoThanhCong" && Context.Session.GetInt32("CustomerUserID").HasValue)
+                        {
+                            <a asp-action="Review" asp-route-donHangID="@Model.donHangID" asp-route-sanPhamID="@ct.BienTheSanPham?.sanPhamID">Đánh giá</a>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <aside class="summary-card">
+        <h2>Thông tin nhận hàng</h2>
+        <p><span>Người nhận</span><b>@Model.hoTenNhan</b></p>
+        <p><span>SĐT</span><b>@Model.sdtNhan</b></p>
+        <p><span>Địa chỉ</span><b>@Model.diaChiNhan</b></p>
+        <p><span>Phương thức</span><b>@Model.phuongThucThanhToan</b></p>
+        <p><span>Tiền hàng</span><b>@Model.tongTienHang.ToString("N0") đ</b></p>
+        <p><span>Phí giao</span><b>@Model.phiVanChuyen.ToString("N0") đ</b></p>
+        <p><span>Giảm giá</span><b>@Model.giamGia.ToString("N0") đ</b></p>
+        <p class="total"><span>Tổng</span><b>@Model.thanhTien.ToString("N0") đ</b></p>
+        @if (Model.trangThaiDonHang is "ChoXacNhan" or "DaDuyet")
+        {
+            <form asp-action="Cancel" method="post" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn hàng?');">
+                <input type="hidden" name="id" value="@Model.donHangID" />
+                <input type="hidden" name="phone" value="@phone" />
+                <button class="btn btn-danger full">Hủy đơn hàng</button>
+            </form>
+        }
+        <a class="btn btn-glass full" asp-controller="Support" asp-action="Create" asp-route-donHangID="@Model.donHangID">Gửi yêu cầu hỗ trợ</a>
+    </aside>
+</div>

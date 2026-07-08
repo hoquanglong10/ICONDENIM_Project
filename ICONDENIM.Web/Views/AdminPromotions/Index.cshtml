@@ -4,13 +4,18 @@
 }
 <section class="admin-panel">
     <div class="panel-header"><div><span class="eyebrow">Promotions</span><h2>Danh sách mã khuyến mãi</h2></div><a class="btn" asp-action="Create">+ Thêm mã</a></div>
+    @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+    <form method="get" class="admin-filter multi"><input name="q" value="@ViewBag.Keyword" placeholder="Tìm mã hoặc chương trình"/><button class="btn btn-dark">Tìm</button></form>
     <div class="table-card">
         <table class="modern-table">
-            <thead><tr><th>Mã</th><th>Tên chương trình</th><th>Loại</th><th>Giá trị</th><th>Lượt dùng</th><th>Hiệu lực</th><th>Trạng thái</th></tr></thead>
+            <thead><tr><th>Mã</th><th>Tên chương trình</th><th>Loại</th><th>Giá trị</th><th>Điều kiện</th><th>Lượt dùng</th><th>Hiệu lực</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
             @foreach (var km in Model)
             {
-                <tr><td><b>@km.maCode</b></td><td>@km.tenChuongTrinh</td><td>@km.loaiGiam</td><td>@km.giaTriGiam</td><td>@km.daSuDung / @km.soLuotSuDung</td><td>@km.ngayBatDau.ToString("dd/MM/yyyy") - @km.ngayKetThuc.ToString("dd/MM/yyyy")</td><td>@(km.trangThai ? "Đang áp dụng" : "Ngừng")</td></tr>
+                <tr>
+                    <td><b>@km.maCode</b></td><td>@km.tenChuongTrinh</td><td>@km.loaiGiam</td><td>@km.giaTriGiam</td><td>@km.dieuKienToiThieu.ToString("N0") đ</td><td>@km.daSuDung / @km.soLuotSuDung</td><td>@km.ngayBatDau.ToString("dd/MM/yyyy") - @km.ngayKetThuc.ToString("dd/MM/yyyy")</td><td>@(km.trangThai ? "Đang áp dụng" : "Ngừng")</td>
+                    <td class="actions-cell"><a asp-action="Edit" asp-route-id="@km.khuyenMaiID">Sửa</a><form asp-action="Toggle" method="post" class="inline"><input type="hidden" name="id" value="@km.khuyenMaiID"/><button class="link-button">@(km.trangThai ? "Ngừng" : "Bật")</button></form></td>
+                </tr>
             }
             </tbody>
         </table>

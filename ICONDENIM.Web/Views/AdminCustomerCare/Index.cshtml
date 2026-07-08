@@ -1,0 +1,19 @@
+@model List<ChamSocKhachHang>
+@{
+    ViewData["Title"] = "Quản lý chăm sóc khách hàng";
+}
+<section class="admin-panel">
+    <div class="panel-header"><div><span class="eyebrow">Customer care</span><h2>Hỏi đáp và yêu cầu khách hàng</h2></div><a asp-action="Reviews" class="btn btn-glass">Quản lý đánh giá</a><a asp-action="Warranties" class="btn btn-glass">Quản lý bảo hành</a></div>
+    @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+    <form method="get" class="admin-filter multi">
+        <select name="loaiYeuCau"><option value="">Tất cả loại yêu cầu</option><option>HoiDap</option><option>DonHang</option><option>DoiTra</option><option>BaoHanh</option></select>
+        <select name="trangThai"><option value="">Tất cả trạng thái</option><option>Moi</option><option>DangXuLy</option><option>DaXuLy</option><option>Dong</option></select>
+        <button class="btn btn-dark">Lọc</button>
+    </form>
+    <div class="table-card"><table class="modern-table"><thead><tr><th>ID</th><th>Loại</th><th>Nội dung</th><th>Ngày gửi</th><th>Trạng thái</th><th>Cập nhật</th></tr></thead><tbody>
+    @foreach (var r in Model)
+    {
+        <tr><td>@r.yeuCauID</td><td>@r.loaiYeuCau</td><td>@r.noiDung</td><td>@r.ngayGui.ToString("dd/MM/yyyy HH:mm")</td><td><span class="mini-badge">@r.trangThai</span></td><td><form asp-action="UpdateRequest" method="post" class="inline-form"><input type="hidden" name="id" value="@r.yeuCauID"/><select name="trangThai"><option>DangXuLy</option><option>DaXuLy</option><option>Dong</option></select><button>Cập nhật</button></form></td></tr>
+    }
+    </tbody></table></div>
+</section>
