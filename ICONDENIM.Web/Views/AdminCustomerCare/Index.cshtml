@@ -1,19 +1,135 @@
-@model List<ChamSocKhachHang>
+@model AdminCustomerCareIndexViewModel
 @{
     ViewData["Title"] = "Quản lý chăm sóc khách hàng";
-}
-<section class="admin-panel">
-    <div class="panel-header"><div><span class="eyebrow">Customer care</span><h2>Hỏi đáp và yêu cầu khách hàng</h2></div><a asp-action="Reviews" class="btn btn-glass">Quản lý đánh giá</a><a asp-action="Warranties" class="btn btn-glass">Quản lý bảo hành</a></div>
-    @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
-    <form method="get" class="admin-filter multi">
-        <select name="loaiYeuCau"><option value="">Tất cả loại yêu cầu</option><option>HoiDap</option><option>DonHang</option><option>DoiTra</option><option>BaoHanh</option></select>
-        <select name="trangThai"><option value="">Tất cả trạng thái</option><option>Moi</option><option>DangXuLy</option><option>DaXuLy</option><option>Dong</option></select>
-        <button class="btn btn-dark">Lọc</button>
-    </form>
-    <div class="table-card"><table class="modern-table"><thead><tr><th>ID</th><th>Loại</th><th>Nội dung</th><th>Ngày gửi</th><th>Trạng thái</th><th>Cập nhật</th></tr></thead><tbody>
-    @foreach (var r in Model)
+    string TypeLabel(string type) => type switch
     {
-        <tr><td>@r.yeuCauID</td><td>@r.loaiYeuCau</td><td>@r.noiDung</td><td>@r.ngayGui.ToString("dd/MM/yyyy HH:mm")</td><td><span class="mini-badge">@r.trangThai</span></td><td><form asp-action="UpdateRequest" method="post" class="inline-form"><input type="hidden" name="id" value="@r.yeuCauID"/><select name="trangThai"><option>DangXuLy</option><option>DaXuLy</option><option>Dong</option></select><button>Cập nhật</button></form></td></tr>
-    }
-    </tbody></table></div>
+        "HoiDap" => "Hỏi đáp",
+        "DonHang" => "Hỗ trợ đơn hàng",
+        "DoiTra" => "Đổi trả",
+        "BaoHanh" => "Bảo hành",
+        _ => type
+    };
+}
+<section class="admin-panel customer-care-panel-v8">
+    <div class="panel-header care-panel-header-v8">
+        <div>
+            <span class="eyebrow">Customer care</span>
+            <h2>Yêu cầu chăm sóc khách hàng</h2>
+            <p>Hiển thị rõ khách hàng, đơn hàng và sản phẩm liên quan để nhân viên xử lý đúng yêu cầu.</p>
+        </div>
+        <a asp-action="Reviews" class="btn btn-glass">Quản lý đánh giá</a>
+    </div>
+
+    @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert error">@TempData["Error"]</div> }
+
+    <form method="get" class="admin-filter multi care-filter-v8">
+        <select name="loaiYeuCau">
+            <option value="">Tất cả loại yêu cầu</option>
+            <option value="HoiDap" selected="@(Model.LoaiYeuCau == "HoiDap" ? "selected" : null)">Hỏi đáp</option>
+            <option value="DonHang" selected="@(Model.LoaiYeuCau == "DonHang" ? "selected" : null)">Hỗ trợ đơn hàng</option>
+            <option value="DoiTra" selected="@(Model.LoaiYeuCau == "DoiTra" ? "selected" : null)">Đổi trả</option>
+            <option value="BaoHanh" selected="@(Model.LoaiYeuCau == "BaoHanh" ? "selected" : null)">Bảo hành</option>
+        </select>
+        <select name="trangThai">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Moi" selected="@(Model.TrangThai == "Moi" ? "selected" : null)">Mới</option>
+            <option value="DangXuLy" selected="@(Model.TrangThai == "DangXuLy" ? "selected" : null)">Đang xử lý</option>
+            <option value="DaXuLy" selected="@(Model.TrangThai == "DaXuLy" ? "selected" : null)">Đã xử lý</option>
+            <option value="Dong" selected="@(Model.TrangThai == "Dong" ? "selected" : null)">Đóng</option>
+            <option value="TuChoi" selected="@(Model.TrangThai == "TuChoi" ? "selected" : null)">Từ chối</option>
+        </select>
+        <button class="btn btn-dark">Lọc</button>
+        <a asp-action="Index" class="btn btn-glass">Xóa lọc</a>
+    </form>
+
+    <div class="table-card care-table-wrap-v8">
+        <table class="modern-table care-table-v8">
+            <thead>
+            <tr>
+                <th>Khách hàng</th>
+                <th>Loại yêu cầu</th>
+                <th>Đơn hàng / sản phẩm</th>
+                <th>Nội dung</th>
+                <th>Ngày gửi</th>
+                <th>Trạng thái</th>
+                <th>Xử lý</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="7" class="empty-cell-v8">Không có yêu cầu phù hợp.</td></tr>
+            }
+            @foreach (var item in Model.Items)
+            {
+                <tr class="@(item.ThieuThongTinLienKet ? "missing-context-row-v8" : null)">
+                    <td>
+                        <div class="care-customer-v8">
+                            <strong>@item.TenKhachHang</strong>
+                            @if (!string.IsNullOrWhiteSpace(item.SoDienThoai)) { <span>@item.SoDienThoai</span> }
+                            @if (!string.IsNullOrWhiteSpace(item.Email)) { <span>@item.Email</span> }
+                            @if (item.UserID.HasValue) { <small>User #@item.UserID</small> }
+                        </div>
+                    </td>
+                    <td>
+                        <span class="care-type-badge-v8 type-@item.LoaiYeuCau.ToLowerInvariant()">@TypeLabel(item.LoaiYeuCau)</span>
+                        <small class="care-id-v8">YC #@item.YeuCauID</small>
+                    </td>
+                    <td>
+                        <div class="care-context-v8">
+                            @if (item.DonHangID.HasValue)
+                            {
+                                <a asp-controller="AdminOrders" asp-action="Details" asp-route-id="@item.DonHangID">
+                                    <strong>@item.MaDonHang</strong>
+                                </a>
+                                <span>@item.TrangThaiDonHang · @item.NgayDat?.ToString("dd/MM/yyyy")</span>
+                            }
+                            else if (item.LoaiYeuCau is "DonHang" or "DoiTra" or "BaoHanh")
+                            {
+                                <span class="missing-context-v8">Chưa liên kết đơn hàng</span>
+                            }
+
+                            @if (item.SanPhamID.HasValue)
+                            {
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.SanPhamID">
+                                    @item.TenSanPham
+                                </a>
+                                @if (!string.IsNullOrWhiteSpace(item.MaSanPham)) { <span>@item.MaSanPham</span> }
+                            }
+                            else if (item.LoaiYeuCau is "DoiTra" or "BaoHanh")
+                            {
+                                <span class="missing-context-v8">Chưa liên kết sản phẩm</span>
+                            }
+                        </div>
+                    </td>
+                    <td><div class="care-content-v8">@item.NoiDung</div></td>
+                    <td>
+                        <div class="care-date-v8">
+                            <strong>@item.NgayGui.ToString("dd/MM/yyyy")</strong>
+                            <span>@item.NgayGui.ToString("HH:mm")</span>
+                            @if (item.NgayXuLy.HasValue) { <small>Xử lý: @item.NgayXuLy.Value.ToString("dd/MM HH:mm")</small> }
+                        </div>
+                    </td>
+                    <td><span class="mini-badge status-@item.TrangThai.ToLowerInvariant()">@item.TrangThai</span></td>
+                    <td>
+                        <form asp-action="UpdateRequest" method="post" class="care-update-form-v8">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.YeuCauID" />
+                            <select name="trangThai">
+                                <option value="Moi" selected="@(item.TrangThai == "Moi" ? "selected" : null)">Mới</option>
+                                <option value="DangXuLy" selected="@(item.TrangThai == "DangXuLy" ? "selected" : null)">Đang xử lý</option>
+                                <option value="DaXuLy" selected="@(item.TrangThai == "DaXuLy" ? "selected" : null)">Đã xử lý</option>
+                                <option value="Dong" selected="@(item.TrangThai == "Dong" ? "selected" : null)">Đóng</option>
+                                <option value="TuChoi" selected="@(item.TrangThai == "TuChoi" ? "selected" : null)">Từ chối</option>
+                            </select>
+                            <button type="submit">Cập nhật</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <p class="care-note-v8">Các yêu cầu cũ không gắn đơn hàng/sản phẩm sẽ được đánh dấu “Chưa liên kết”. Yêu cầu mới bắt buộc chọn đúng đơn và sản phẩm khi đổi trả hoặc bảo hành.</p>
 </section>

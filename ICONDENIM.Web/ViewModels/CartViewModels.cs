@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using ICONDENIM.Web.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ICONDENIM.Web.ViewModels;
 
@@ -52,6 +53,12 @@ public class CheckoutViewModel
 
     [Display(Name = "Phương thức thanh toán")]
     public string PhuongThucThanhToan { get; set; } = "COD";
+
+    [Display(Name = "Tài khoản thanh toán online")]
+    public string? TaiKhoanThanhToanOnline { get; set; }
+
+    [Display(Name = "Mã xác nhận thanh toán demo")]
+    public string? MaOtpThanhToan { get; set; }
 
     public CartViewModel Cart { get; set; } = new();
 }
@@ -107,4 +114,22 @@ public class SupportRequestViewModel
     [Required] public string loaiYeuCau { get; set; } = "HoiDap";
     [Required(ErrorMessage = "Vui lòng nhập nội dung cần hỗ trợ")]
     [StringLength(1000)] public string noiDung { get; set; } = string.Empty;
+
+    [ValidateNever] public List<SupportOrderOptionViewModel> OrderOptions { get; set; } = new();
+    [ValidateNever] public List<SupportProductOptionViewModel> ProductOptions { get; set; } = new();
+    [ValidateNever] public string CustomerDisplayName { get; set; } = string.Empty;
+    [ValidateNever] public string CustomerContact { get; set; } = string.Empty;
+}
+
+public class SupportOrderOptionViewModel
+{
+    public int DonHangID { get; set; }
+    public string Label { get; set; } = string.Empty;
+}
+
+public class SupportProductOptionViewModel
+{
+    public int SanPhamID { get; set; }
+    public int? DonHangID { get; set; }
+    public string Label { get; set; } = string.Empty;
 }

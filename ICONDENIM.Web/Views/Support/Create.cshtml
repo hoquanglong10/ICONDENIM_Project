@@ -2,17 +2,133 @@
 @{
     ViewData["Title"] = "Chăm sóc khách hàng";
 }
-<section class="listing-hero compact"><span class="eyebrow">Customer care</span><h1>Gửi yêu cầu hỗ trợ</h1><p>Hỏi đáp sản phẩm, phản hồi đơn hàng, yêu cầu đổi trả hoặc bảo hành.</p></section>
-<form asp-action="Create" method="post" class="form-card narrow">
-    <input asp-for="sanPhamID" type="hidden" />
-    <input asp-for="donHangID" type="hidden" />
-    <label>Loại yêu cầu</label>
-    <select asp-for="loaiYeuCau">
-        <option value="HoiDap">Hỏi đáp sản phẩm</option>
-        <option value="DonHang">Hỗ trợ đơn hàng</option>
-        <option value="DoiTra">Đổi trả</option>
-        <option value="BaoHanh">Bảo hành</option>
-    </select>
-    <label>Nội dung</label><textarea asp-for="noiDung" rows="6" placeholder="Nhập nội dung cần hỗ trợ..."></textarea><span asp-validation-for="noiDung"></span>
-    <button class="btn">Gửi yêu cầu</button>
+<section class="listing-hero compact support-head-v8">
+    <span class="eyebrow">Customer care</span>
+    <h1>Gửi yêu cầu hỗ trợ</h1>
+    <p>Mỗi yêu cầu được gắn với tài khoản, đơn hàng và sản phẩm liên quan để nhân viên xử lý chính xác.</p>
+</section>
+
+<form asp-action="Create" method="post" class="form-card support-form-v8" id="supportForm">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-box"></div>
+
+    <div class="support-account-v8">
+        <span>Người gửi yêu cầu</span>
+        <strong>@Model.CustomerDisplayName</strong>
+        <small>@Model.CustomerContact</small>
+    </div>
+
+    <div class="support-fields-v8">
+        <div class="support-field-v8">
+            <label asp-for="loaiYeuCau">Loại yêu cầu</label>
+            <select asp-for="loaiYeuCau" id="supportType">
+                <option value="HoiDap">Hỏi đáp sản phẩm</option>
+                <option value="DonHang">Hỗ trợ đơn hàng</option>
+                <option value="DoiTra">Đổi trả sản phẩm</option>
+                <option value="BaoHanh">Bảo hành sản phẩm</option>
+            </select>
+            <span asp-validation-for="loaiYeuCau"></span>
+        </div>
+
+        <div class="support-field-v8" id="orderField">
+            <label asp-for="donHangID">Đơn hàng liên quan</label>
+            <select asp-for="donHangID" id="supportOrder">
+                <option value="">-- Chọn đơn hàng --</option>
+                @foreach (var order in Model.OrderOptions)
+                {
+                    <option value="@order.DonHangID">@order.Label</option>
+                }
+            </select>
+            <span asp-validation-for="donHangID"></span>
+        </div>
+
+        <div class="support-field-v8" id="productField">
+            <label asp-for="sanPhamID">Sản phẩm liên quan</label>
+            <select asp-for="sanPhamID" id="supportProduct">
+                <option value="">-- Chọn sản phẩm --</option>
+                @foreach (var product in Model.ProductOptions)
+                {
+                    <option value="@product.SanPhamID" data-order-id="@(product.DonHangID?.ToString() ?? string.Empty)">@product.Label</option>
+                }
+            </select>
+            <span asp-validation-for="sanPhamID"></span>
+        </div>
+
+        <div class="support-field-v8 full">
+            <label asp-for="noiDung">Nội dung cần hỗ trợ</label>
+            <textarea asp-for="noiDung" rows="7" placeholder="Mô tả rõ tình trạng, yêu cầu xử lý hoặc lý do đổi trả/bảo hành..."></textarea>
+            <span asp-validation-for="noiDung"></span>
+        </div>
+    </div>
+
+    <div class="support-guidance-v8" id="supportGuidance"></div>
+    <button class="btn support-submit-v8">Gửi yêu cầu</button>
 </form>
+
+@section Scripts {
+<script>
+(function(){
+    const type = document.getElementById('supportType');
+    const orderField = document.getElementById('orderField');
+    const productField = document.getElementById('productField');
+    const order = document.getElementById('supportOrder');
+    const product = document.getElementById('supportProduct');
+    const guidance = document.getElementById('supportGuidance');
+    const allProductOptions = Array.from(product?.options || []).map(option => ({
+        value: option.value,
+        text: option.text,
+        orderId: option.dataset.orderId || '',
+        selected: option.selected
+    }));
+
+    function rebuildProducts(){
+        if(!product) return;
+        const selectedValue = product.value;
+        const currentType = type?.value;
+        const selectedOrder = order?.value || '';
+        product.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '-- Chọn sản phẩm --';
+        product.appendChild(placeholder);
+
+        allProductOptions.filter(x => x.value).forEach(item => {
+            const showForOrder = ['DoiTra','BaoHanh'].includes(currentType)
+                ? item.orderId === selectedOrder
+                : item.orderId === '';
+            if(!showForOrder) return;
+            const option = document.createElement('option');
+            option.value = item.value;
+            option.textContent = item.text;
+            option.dataset.orderId = item.orderId;
+            if(item.value === selectedValue || item.selected) option.selected = true;
+            product.appendChild(option);
+        });
+    }
+
+    function syncFields(){
+        const currentType = type?.value;
+        const needsOrder = ['DonHang','DoiTra','BaoHanh'].includes(currentType);
+        const needsProduct = ['DoiTra','BaoHanh'].includes(currentType);
+        orderField.style.display = needsOrder ? 'grid' : 'none';
+        productField.style.display = (needsProduct || currentType === 'HoiDap') ? 'grid' : 'none';
+        order.required = needsOrder;
+        product.required = needsProduct;
+        if(!needsOrder) order.value = '';
+        rebuildProducts();
+        guidance.textContent = currentType === 'HoiDap'
+            ? 'Có thể chọn sản phẩm muốn hỏi hoặc để trống nếu là câu hỏi chung.'
+            : currentType === 'DonHang'
+                ? 'Vui lòng chọn đúng đơn hàng cần hỗ trợ.'
+                : 'Vui lòng chọn đúng đơn hàng và sản phẩm đã mua để cửa hàng kiểm tra.';
+    }
+
+    type?.addEventListener('change', syncFields);
+    order?.addEventListener('change', function(){
+        product.value = '';
+        rebuildProducts();
+    });
+    syncFields();
+})();
+</script>
+}

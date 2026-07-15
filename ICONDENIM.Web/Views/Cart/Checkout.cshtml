@@ -1,6 +1,12 @@
 @model CheckoutViewModel
+@inject IOptions<PayPalOptions> PayPalOptionsAccessor
 @{
     ViewData["Title"] = "Đặt hàng";
+    var paypalOptions = PayPalOptionsAccessor.Value;
+    var paypalConfigured = paypalOptions.IsConfigured;
+    var paypalSdkUrl = paypalConfigured
+        ? $"https://www.paypal.com/sdk/js?client-id={Uri.EscapeDataString(paypalOptions.ClientId)}&currency={Uri.EscapeDataString(paypalOptions.Currency)}&intent=capture&components=buttons&disable-funding=card,paylater,venmo"
+        : string.Empty;
 }
 <section class="checkout-head-v4">
     <span>Checkout</span>
@@ -8,7 +14,8 @@
     <p>Hỗ trợ đặt hàng cho cả khách đã đăng nhập và khách vãng lai.</p>
 </section>
 @if (TempData["Error"] != null) { <div class="alert error checkout-alert-v4">@TempData["Error"]</div> }
-<form asp-action="Checkout" method="post" class="checkout-layout-v4">
+<form asp-action="Checkout" method="post" class="checkout-layout-v4" id="checkoutForm">
+    @Html.AntiForgeryToken()
     <div class="checkout-form-v4">
         <h2>Thông tin nhận hàng</h2>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -16,18 +23,61 @@
             <div class="field-v4"><label asp-for="HoTenNhan"></label><input asp-for="HoTenNhan" placeholder="Họ tên người nhận" /><span asp-validation-for="HoTenNhan"></span></div>
             <div class="field-v4"><label asp-for="SdtNhan"></label><input asp-for="SdtNhan" placeholder="Số điện thoại" /><span asp-validation-for="SdtNhan"></span></div>
             <div class="field-v4 full"><label asp-for="DiaChiNhan"></label><textarea asp-for="DiaChiNhan" placeholder="Địa chỉ nhận hàng"></textarea><span asp-validation-for="DiaChiNhan"></span></div>
-            <div class="field-v4"><label asp-for="MaKhuyenMai"></label><input asp-for="MaKhuyenMai" placeholder="VD: SUMMER10" /></div>
+
+            <div class="field-v4 full promotion-field-v8">
+                <label asp-for="MaKhuyenMai"></label>
+                <div class="promotion-input-row-v8">
+                    <input asp-for="MaKhuyenMai" placeholder="Nhập mã, ví dụ SUMMER10" autocomplete="off" />
+                    <button type="button" id="applyPromotionButton">Áp dụng</button>
+                </div>
+                <span asp-validation-for="MaKhuyenMai"></span>
+                <div id="promotionMessage" class="promotion-message-v8" role="status"></div>
+            </div>
+
             <div class="field-v4"><label asp-for="PhuongThucThanhToan"></label>
                 <select asp-for="PhuongThucThanhToan">
                     <option value="COD">COD - thanh toán khi nhận hàng</option>
+                    <option value="PayPal">PayPal Sandbox - thanh toán thử thật</option>
                     <option value="VNPay">VNPay - thanh toán trực tuyến demo</option>
                     <option value="MoMo">MoMo - thanh toán trực tuyến demo</option>
                     <option value="Banking">Chuyển khoản ngân hàng demo</option>
                 </select>
+                <span asp-validation-for="PhuongThucThanhToan"></span>
+            </div>
+
+            <div class="online-payment-demo-v6" id="onlinePaymentBox">
+                <h3>Thông tin thanh toán trực tuyến demo</h3>
+                <p>Phần này chỉ dùng cho VNPay, MoMo hoặc chuyển khoản demo. PayPal sử dụng nút Sandbox riêng bên dưới.</p>
+                <div class="checkout-grid-v4">
+                    <div class="field-v4"><label asp-for="TaiKhoanThanhToanOnline"></label><input asp-for="TaiKhoanThanhToanOnline" placeholder="Số ví / tài khoản demo" /><span asp-validation-for="TaiKhoanThanhToanOnline"></span></div>
+                    <div class="field-v4"><label asp-for="MaOtpThanhToan"></label><input asp-for="MaOtpThanhToan" placeholder="Nhập mã demo: 123456" /><span asp-validation-for="MaOtpThanhToan"></span></div>
+                </div>
+            </div>
+
+            <div class="paypal-checkout-v7" id="paypalPaymentBox">
+                <div class="paypal-heading-v7">
+                    <div>
+                        <h3>Thanh toán bằng PayPal Sandbox</h3>
+                        <p>PayPal sẽ mở cửa sổ đăng nhập tài khoản Personal Sandbox. Không sử dụng tài khoản PayPal thật.</p>
+                    </div>
+                    <span class="sandbox-badge-v7">SANDBOX</span>
+                </div>
+                @if (paypalConfigured)
+                {
+                    <div id="paypal-button-container"></div>
+                    <div id="paypalMessage" class="paypal-message-v7" role="status"></div>
+                }
+                else
+                {
+                    <div class="paypal-config-warning-v7">
+                        PayPal chưa có Client ID/Secret. Thêm cấu hình bằng <code>dotnet user-secrets</code> rồi chạy lại website.
+                    </div>
+                }
             </div>
         </div>
-        <button class="btn dark-btn checkout-submit-v4">Đặt hàng</button>
+        <button class="btn dark-btn checkout-submit-v4" id="standardCheckoutButton" type="submit">Đặt hàng</button>
     </div>
+
     <aside class="checkout-summary-v4">
         <h2>Sản phẩm trong đơn</h2>
         <div class="checkout-items-v4">
@@ -37,9 +87,259 @@
             }
         </div>
         <div class="summary-lines-v4">
-            <p><span>Tạm tính</span><b>@Model.Cart.TongTienHang.ToString("N0") đ</b></p>
-            <p><span>Phí vận chuyển</span><b>@Model.Cart.PhiVanChuyen.ToString("N0") đ</b></p>
-            <p class="total"><span>Tổng dự kiến</span><b>@Model.Cart.ThanhTien.ToString("N0") đ</b></p>
+            <p><span>Tạm tính</span><b id="summarySubtotal">@Model.Cart.TongTienHang.ToString("N0") đ</b></p>
+            <p><span>Phí vận chuyển</span><b id="summaryShipping">@Model.Cart.PhiVanChuyen.ToString("N0") đ</b></p>
+            <p id="summaryDiscountRow" class="discount-line-v8" style="display:@(Model.Cart.GiamGia > 0 ? "flex" : "none")">
+                <span>Giảm giá</span><b id="summaryDiscount">-@Model.Cart.GiamGia.ToString("N0") đ</b>
+            </p>
+            <p class="total"><span>Tổng cần trả</span><b id="summaryTotal">@Model.Cart.ThanhTien.ToString("N0") đ</b></p>
         </div>
+        <div class="promotion-applied-note-v8" id="promotionAppliedNote" style="display:@(Model.Cart.GiamGia > 0 ? "block" : "none")">
+            Giá trị thanh toán đã bao gồm mã khuyến mãi.
+        </div>
+        <div class="paypal-rate-note-v7">PayPal quy đổi số tiền sau giảm giá từ VND sang @paypalOptions.Currency theo tỷ giá demo trong project.</div>
     </aside>
 </form>
+
+@section Scripts {
+@if (paypalConfigured)
+{
+    <script src="@Html.Raw(paypalSdkUrl)"></script>
+}
+<script>
+(function(){
+    const form = document.getElementById('checkoutForm');
+    const method = document.getElementById('PhuongThucThanhToan');
+    const demoBox = document.getElementById('onlinePaymentBox');
+    const paypalBox = document.getElementById('paypalPaymentBox');
+    const standardButton = document.getElementById('standardCheckoutButton');
+    const message = document.getElementById('paypalMessage');
+    const promotionInput = document.getElementById('MaKhuyenMai');
+    const applyPromotionButton = document.getElementById('applyPromotionButton');
+    const promotionMessage = document.getElementById('promotionMessage');
+    const discountRow = document.getElementById('summaryDiscountRow');
+    const discountValue = document.getElementById('summaryDiscount');
+    const totalValue = document.getElementById('summaryTotal');
+    const promotionAppliedNote = document.getElementById('promotionAppliedNote');
+    const antiforgeryToken = form?.querySelector('input[name="__RequestVerificationToken"]')?.value;
+    const paypalConfigured = @paypalConfigured.ToString().ToLowerInvariant();
+    const originalTotal = @Model.Cart.ThanhTien.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    let internalOrderId = null;
+    let paypalOrderId = null;
+    let buttonsRendered = false;
+    let lastAppliedCode = '@(Model.Cart.GiamGia > 0 ? (Model.MaKhuyenMai ?? string.Empty).Trim().ToUpperInvariant() : string.Empty)';
+    let submitAfterPromotion = false;
+
+    function formatVnd(value){
+        return new Intl.NumberFormat('vi-VN').format(Number(value || 0)) + ' đ';
+    }
+
+    function setMessage(text, type){
+        if(!message) return;
+        message.textContent = text || '';
+        message.className = 'paypal-message-v7' + (type ? ' ' + type : '');
+    }
+
+    function setPromotionMessage(text, type){
+        if(!promotionMessage) return;
+        promotionMessage.textContent = text || '';
+        promotionMessage.className = 'promotion-message-v8' + (type ? ' ' + type : '');
+    }
+
+    function resetPromotionSummary(messageText){
+        lastAppliedCode = '';
+        if(discountRow) discountRow.style.display = 'none';
+        if(discountValue) discountValue.textContent = '-0 đ';
+        if(totalValue) totalValue.textContent = formatVnd(originalTotal);
+        if(promotionAppliedNote) promotionAppliedNote.style.display = 'none';
+        if(messageText) setPromotionMessage(messageText, 'error');
+    }
+
+    function isPayPal(){ return method?.value === 'PayPal'; }
+    function isDemoOnline(){ return ['VNPay','MoMo','Banking'].includes(method?.value); }
+
+    function validateShipping(){
+        const requiredIds = ['HoTenNhan','SdtNhan','DiaChiNhan'];
+        for(const id of requiredIds){
+            const element = document.getElementById(id);
+            if(!element || !element.value.trim()){
+                element?.focus();
+                setMessage('Vui lòng nhập đầy đủ họ tên, số điện thoại và địa chỉ nhận hàng.', 'error');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    async function applyPromotion(showEmptyError = true){
+        const code = (promotionInput?.value || '').trim().toUpperCase();
+        if(!code){
+            resetPromotionSummary(showEmptyError ? 'Vui lòng nhập mã khuyến mãi.' : '');
+            return !showEmptyError;
+        }
+
+        applyPromotionButton.disabled = true;
+        applyPromotionButton.textContent = 'Đang kiểm tra...';
+        setPromotionMessage('Đang kiểm tra điều kiện áp dụng mã...', 'info');
+        try{
+            const body = new URLSearchParams();
+            body.append('maKhuyenMai', code);
+            body.append('__RequestVerificationToken', antiforgeryToken || '');
+            const response = await fetch('@Url.Action("PreviewPromotion", "Cart")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                body
+            });
+            const result = await response.json();
+            if(!result.success){
+                resetPromotionSummary(result.message || 'Không thể áp dụng mã khuyến mãi.');
+                return false;
+            }
+
+            promotionInput.value = result.promotionCode || code;
+            lastAppliedCode = (result.promotionCode || code).toUpperCase();
+            if(discountRow) discountRow.style.display = 'flex';
+            if(discountValue) discountValue.textContent = '-' + formatVnd(result.discount);
+            if(totalValue) totalValue.textContent = formatVnd(result.total);
+            if(promotionAppliedNote) promotionAppliedNote.style.display = 'block';
+            setPromotionMessage(result.message + ' Tổng cần trả: ' + formatVnd(result.total), 'success');
+            return true;
+        }catch(error){
+            resetPromotionSummary('Không thể kiểm tra mã khuyến mãi. Vui lòng thử lại.');
+            return false;
+        }finally{
+            applyPromotionButton.disabled = false;
+            applyPromotionButton.textContent = 'Áp dụng';
+        }
+    }
+
+    async function postJson(url, payload){
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': antiforgeryToken || ''
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({ message: 'Máy chủ trả về dữ liệu không hợp lệ.' }));
+        if(!response.ok) throw new Error(data.message || 'Không thể xử lý thanh toán PayPal.');
+        return data;
+    }
+
+    async function cancelPendingPayPal(){
+        if(!internalOrderId || !paypalOrderId) return;
+        try{
+            await postJson('/paypal/cancel-order', { internalOrderId, paypalOrderId });
+        }catch(error){
+            console.warn('Không thể hủy PayPal order tạm:', error);
+        }finally{
+            internalOrderId = null;
+            paypalOrderId = null;
+        }
+    }
+
+    function syncPaymentBox(){
+        if(!method) return;
+        if(demoBox) demoBox.style.display = isDemoOnline() ? 'block' : 'none';
+        if(paypalBox) paypalBox.style.display = isPayPal() ? 'block' : 'none';
+        if(standardButton) standardButton.style.display = isPayPal() ? 'none' : 'block';
+        if(isPayPal() && !paypalConfigured){
+            setMessage('PayPal chưa được cấu hình Client ID và Client Secret.', 'error');
+        }
+    }
+
+    applyPromotionButton?.addEventListener('click', () => applyPromotion(true));
+    promotionInput?.addEventListener('input', function(){
+        const current = promotionInput.value.trim().toUpperCase();
+        if(lastAppliedCode && current !== lastAppliedCode){
+            resetPromotionSummary('Mã đã thay đổi. Nhấn “Áp dụng” để cập nhật tổng tiền.');
+        }else if(!current){
+            resetPromotionSummary('');
+        }
+    });
+    promotionInput?.addEventListener('keydown', function(event){
+        if(event.key === 'Enter'){
+            event.preventDefault();
+            applyPromotion(true);
+        }
+    });
+
+    method?.addEventListener('change', async function(){
+        if(!isPayPal()) await cancelPendingPayPal();
+        setMessage('');
+        syncPaymentBox();
+    });
+
+    form?.addEventListener('submit', async function(event){
+        if(isPayPal()){
+            event.preventDefault();
+            setMessage('Hãy sử dụng nút PayPal Sandbox để hoàn tất thanh toán.', 'info');
+            return;
+        }
+
+        const code = (promotionInput?.value || '').trim().toUpperCase();
+        if(code && code !== lastAppliedCode && !submitAfterPromotion){
+            event.preventDefault();
+            const applied = await applyPromotion(true);
+            if(applied){
+                submitAfterPromotion = true;
+                form.requestSubmit();
+            }
+            return;
+        }
+        submitAfterPromotion = false;
+    });
+
+    if(paypalConfigured && window.paypal && !buttonsRendered){
+        buttonsRendered = true;
+        paypal.Buttons({
+            fundingSource: paypal.FUNDING.PAYPAL,
+            style: { layout: 'vertical', shape: 'rect', label: 'paypal', height: 45 },
+            createOrder: async function(){
+                if(!validateShipping()) throw new Error('Thiếu thông tin nhận hàng.');
+                const code = (promotionInput?.value || '').trim().toUpperCase();
+                if(code && code !== lastAppliedCode){
+                    const applied = await applyPromotion(true);
+                    if(!applied) throw new Error('Mã khuyến mãi chưa hợp lệ.');
+                }
+
+                setMessage('Đang tạo giao dịch PayPal Sandbox...', 'info');
+                const result = await postJson('/paypal/create-order', {
+                    hoTenNhan: document.getElementById('HoTenNhan').value,
+                    sdtNhan: document.getElementById('SdtNhan').value,
+                    diaChiNhan: document.getElementById('DiaChiNhan').value,
+                    maKhuyenMai: promotionInput?.value || null
+                });
+                internalOrderId = result.internalOrderId;
+                paypalOrderId = result.paypalOrderId;
+                setMessage(`Đã tạo giao dịch ${result.amount} ${result.currency}. Hãy đăng nhập tài khoản Sandbox để duyệt.`, 'info');
+                return result.paypalOrderId;
+            },
+            onApprove: async function(data){
+                setMessage('PayPal đã duyệt. Hệ thống đang xác nhận và cập nhật đơn hàng...', 'info');
+                const result = await postJson('/paypal/capture-order', {
+                    internalOrderId,
+                    paypalOrderId: data.orderID
+                });
+                if(result.success && result.redirectUrl){
+                    window.location.href = result.redirectUrl;
+                    return;
+                }
+                throw new Error('Không nhận được kết quả thanh toán thành công.');
+            },
+            onCancel: async function(){
+                await cancelPendingPayPal();
+                setMessage('Bạn đã hủy thanh toán PayPal. Tồn kho tạm giữ đã được hoàn lại.', 'info');
+            },
+            onError: function(error){
+                console.error(error);
+                setMessage(error?.message || 'Có lỗi khi xử lý PayPal. Vui lòng thử lại.', 'error');
+            }
+        }).render('#paypal-button-container');
+    }
+
+    syncPaymentBox();
+})();
+</script>
+}

@@ -39,6 +39,7 @@ public class ProductsController : Controller
         if (banChay == true) query = query.Where(x => x.laHangBanChay);
         query = query.Where(x => x.choPhepHienThi && x.trangThai == "DangBan" && (x.tongTonKho > 0 || x.laHangHot));
         ViewBag.Keyword = q;
+        ViewBag.DanhMucID = danhMucID;
         ViewBag.GiaTu = giaTu;
         ViewBag.GiaDen = giaDen;
         ViewBag.HangHot = hangHot;

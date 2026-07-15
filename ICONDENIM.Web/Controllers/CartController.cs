@@ -69,6 +69,66 @@ public class CartController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> PreviewPromotion(string? maKhuyenMai)
+    {
+        var cart = await BuildCartViewModel();
+        if (!cart.Items.Any())
+        {
+            return Json(new
+            {
+                success = false,
+                message = "Giỏ hàng đang trống.",
+                subtotal = 0m,
+                shipping = 0m,
+                discount = 0m,
+                total = 0m
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(maKhuyenMai))
+        {
+            return Json(new
+            {
+                success = false,
+                message = "Vui lòng nhập mã khuyến mãi.",
+                subtotal = cart.TongTienHang,
+                shipping = cart.PhiVanChuyen,
+                discount = 0m,
+                total = cart.TongTienHang + cart.PhiVanChuyen
+            });
+        }
+
+        var userId = HttpContext.Session.GetInt32("CustomerUserID");
+        var discountInfo = await CalculateDiscount(maKhuyenMai, cart.TongTienHang, userId);
+        if (discountInfo.Promotion == null || discountInfo.Discount <= 0)
+        {
+            return Json(new
+            {
+                success = false,
+                message = "Mã khuyến mãi không hợp lệ, đã hết hạn, hết lượt hoặc chưa đủ điều kiện áp dụng.",
+                subtotal = cart.TongTienHang,
+                shipping = cart.PhiVanChuyen,
+                discount = 0m,
+                total = cart.TongTienHang + cart.PhiVanChuyen
+            });
+        }
+
+        var total = Math.Max(0m, cart.TongTienHang + cart.PhiVanChuyen - discountInfo.Discount);
+        return Json(new
+        {
+            success = true,
+            message = $"Đã áp dụng mã {discountInfo.Promotion.maCode} - {discountInfo.Promotion.tenChuongTrinh}.",
+            promotionCode = discountInfo.Promotion.maCode,
+            promotionName = discountInfo.Promotion.tenChuongTrinh,
+            subtotal = cart.TongTienHang,
+            shipping = cart.PhiVanChuyen,
+            discount = discountInfo.Discount,
+            total
+        });
+    }
+
     public async Task<IActionResult> Checkout()
     {
         var cart = await BuildCartViewModel();
@@ -95,6 +155,7 @@ public class CartController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Checkout(CheckoutViewModel vm)
     {
         var cart = await BuildCartViewModel();
@@ -105,13 +166,28 @@ public class CartController : Controller
             if (item.soLuong > item.soLuongTon)
                 ModelState.AddModelError(string.Empty, $"Sản phẩm {item.tenSanPham} chỉ còn {item.soLuongTon} trong kho.");
         }
-        if (!ModelState.IsValid) return View(vm);
+        var onlineMethods = new[] { "VNPay", "MoMo", "Banking" };
+        if (vm.PhuongThucThanhToan == "PayPal")
+            ModelState.AddModelError(nameof(vm.PhuongThucThanhToan), "Vui lòng hoàn tất thanh toán bằng nút PayPal Sandbox trên trang checkout.");
+        if (onlineMethods.Contains(vm.PhuongThucThanhToan))
+        {
+            if (string.IsNullOrWhiteSpace(vm.TaiKhoanThanhToanOnline))
+                ModelState.AddModelError(nameof(vm.TaiKhoanThanhToanOnline), "Vui lòng nhập tài khoản thanh toán online demo.");
+            if (string.IsNullOrWhiteSpace(vm.MaOtpThanhToan))
+                ModelState.AddModelError(nameof(vm.MaOtpThanhToan), "Vui lòng nhập mã xác nhận thanh toán demo.");
+        }
 
         var userId = HttpContext.Session.GetInt32("CustomerUserID");
+        var discountInfo = await CalculateDiscount(vm.MaKhuyenMai, cart.TongTienHang, userId);
+        cart.GiamGia = discountInfo.Discount;
+        if (!string.IsNullOrWhiteSpace(vm.MaKhuyenMai) && discountInfo.Promotion == null)
+            ModelState.AddModelError(nameof(vm.MaKhuyenMai), "Mã khuyến mãi không hợp lệ, hết hạn, hết lượt hoặc chưa đủ điều kiện áp dụng.");
+
+        if (!ModelState.IsValid) return View(vm);
+
         await using var tran = await _db.Database.BeginTransactionAsync();
         try
         {
-            var discountInfo = await CalculateDiscount(vm.MaKhuyenMai, cart.TongTienHang, userId);
             var orderTotal = cart.TongTienHang + cart.PhiVanChuyen - discountInfo.Discount;
             var order = new DonHang
             {
@@ -177,7 +253,9 @@ public class CartController : Controller
                 soTien = orderTotal,
                 trangThai = vm.PhuongThucThanhToan == "COD" ? "ChoThanhToan" : "DaThanhToan",
                 maGiaoDich = vm.PhuongThucThanhToan == "COD" ? null : "DEMO" + DateTime.Now.ToString("yyyyMMddHHmmss"),
-                noiDungThanhToan = vm.PhuongThucThanhToan == "COD" ? "Thanh toán khi nhận hàng" : "Thanh toán online demo",
+                noiDungThanhToan = vm.PhuongThucThanhToan == "COD"
+                    ? "Thanh toán khi nhận hàng"
+                    : $"Thanh toán trực tuyến demo qua {vm.PhuongThucThanhToan}. Tài khoản: {vm.TaiKhoanThanhToanOnline}",
                 thoiGianThanhToan = vm.PhuongThucThanhToan == "COD" ? null : DateTime.Now
             });
 

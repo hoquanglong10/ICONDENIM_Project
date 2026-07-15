@@ -1,15 +1,53 @@
-@model List<DanhGia>
+@model List<AdminReviewItemViewModel>
 @{
     ViewData["Title"] = "Quản lý đánh giá sản phẩm";
 }
-<section class="admin-panel">
-    <div class="panel-header"><div><span class="eyebrow">Reviews</span><h2>Đánh giá sản phẩm của khách hàng</h2></div><a asp-action="Index" class="btn btn-glass">Yêu cầu CSKH</a></div>
+<section class="admin-panel customer-care-panel-v8">
+    <div class="panel-header care-panel-header-v8">
+        <div>
+            <span class="eyebrow">Reviews</span>
+            <h2>Đánh giá sản phẩm của khách hàng</h2>
+            <p>Đánh giá được đối chiếu theo khách hàng, sản phẩm và đơn hàng đã mua.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-glass">Yêu cầu CSKH</a>
+    </div>
     @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
-    <form method="get" class="admin-filter multi"><select name="trangThai"><option value="">Tất cả</option><option>ChoDuyet</option><option>DaDuyet</option><option>TuChoi</option></select><button class="btn btn-dark">Lọc</button></form>
-    <div class="table-card"><table class="modern-table"><thead><tr><th>ID</th><th>User</th><th>Sản phẩm</th><th>Đơn</th><th>Sao</th><th>Nội dung</th><th>Trạng thái</th><th></th></tr></thead><tbody>
-    @foreach (var r in Model)
-    {
-        <tr><td>@r.danhGiaID</td><td>@r.userID</td><td>@r.sanPhamID</td><td>@r.donHangID</td><td>@r.soSao ⭐</td><td>@r.noiDung</td><td>@r.trangThai</td><td><form asp-action="UpdateReview" method="post" class="inline-form"><input type="hidden" name="id" value="@r.danhGiaID"/><select name="trangThai"><option>DaDuyet</option><option>TuChoi</option><option>ChoDuyet</option></select><button>Lưu</button></form></td></tr>
-    }
-    </tbody></table></div>
+    <form method="get" class="admin-filter multi">
+        <select name="trangThai">
+            <option value="">Tất cả trạng thái</option>
+            <option value="ChoDuyet" selected="@(ViewBag.TrangThai == "ChoDuyet" ? "selected" : null)">Chờ duyệt</option>
+            <option value="DaDuyet" selected="@(ViewBag.TrangThai == "DaDuyet" ? "selected" : null)">Đã duyệt</option>
+            <option value="TuChoi" selected="@(ViewBag.TrangThai == "TuChoi" ? "selected" : null)">Từ chối</option>
+        </select>
+        <button class="btn btn-dark">Lọc</button>
+    </form>
+    <div class="table-card care-table-wrap-v8">
+        <table class="modern-table care-table-v8">
+            <thead><tr><th>Khách hàng</th><th>Sản phẩm / đơn hàng</th><th>Đánh giá</th><th>Ngày tạo</th><th>Trạng thái</th><th>Xử lý</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><div class="care-customer-v8"><strong>@item.TenKhachHang</strong><span>@item.SoDienThoai</span><small>User #@item.UserID</small></div></td>
+                    <td><div class="care-context-v8"><a asp-controller="Products" asp-action="Details" asp-route-id="@item.SanPhamID"><strong>@item.TenSanPham</strong></a><a asp-controller="AdminOrders" asp-action="Details" asp-route-id="@item.DonHangID">@item.MaDonHang</a></div></td>
+                    <td><div class="review-content-v8"><strong>@item.SoSao/5 sao</strong><span>@item.NoiDung</span></div></td>
+                    <td>@item.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td><span class="mini-badge">@item.TrangThai</span></td>
+                    <td>
+                        <form asp-action="UpdateReview" method="post" class="care-update-form-v8">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.DanhGiaID" />
+                            <select name="trangThai">
+                                <option value="ChoDuyet" selected="@(item.TrangThai == "ChoDuyet" ? "selected" : null)">Chờ duyệt</option>
+                                <option value="DaDuyet" selected="@(item.TrangThai == "DaDuyet" ? "selected" : null)">Đã duyệt</option>
+                                <option value="TuChoi" selected="@(item.TrangThai == "TuChoi" ? "selected" : null)">Từ chối</option>
+                            </select>
+                            <button>Lưu</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </section>

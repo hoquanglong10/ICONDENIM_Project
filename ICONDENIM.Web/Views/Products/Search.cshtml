@@ -1,6 +1,7 @@
 @model List<SanPhamTrangChuView>
 @{
     ViewData["Title"] = "Sản phẩm";
+    var danhMucs = ViewBag.DanhMucs as List<DanhMuc> ?? new List<DanhMuc>();
 }
 <section class="products-page-header compact-products-head">
     <div>
@@ -9,9 +10,25 @@
     </div>
     <span class="product-count">@Model.Count sản phẩm</span>
 </section>
+<details class="advanced-filter-v6">
+    <summary>Lọc nâng cao theo tên, loại sản phẩm và khoảng giá</summary>
+    <form method="get" class="advanced-filter-form-v6">
+        <input name="q" value="@ViewBag.Keyword" placeholder="Tên sản phẩm, mã sản phẩm..." />
+        <select name="danhMucID">
+            <option value="">Tất cả loại sản phẩm</option>
+            @foreach (var dm in danhMucs)
+            {
+                <option value="@dm.danhMucID" selected="@(ViewBag.DanhMucID != null && (int)ViewBag.DanhMucID == dm.danhMucID ? "selected" : null)">@dm.tenDanhMuc</option>
+            }
+        </select>
+        <input type="number" name="giaTu" value="@ViewBag.GiaTu" placeholder="Giá từ" />
+        <input type="number" name="giaDen" value="@ViewBag.GiaDen" placeholder="Giá đến" />
+        <button class="btn dark-btn">Lọc sản phẩm</button>
+    </form>
+</details>
 @if (!Model.Any())
 {
-    <div class="empty-state search-empty">Không tìm thấy sản phẩm phù hợp. Hãy thử tìm bằng ô tìm kiếm trên đầu trang.</div>
+    <div class="empty-state search-empty">Không tìm thấy sản phẩm phù hợp. Hãy thử tìm bằng ô tìm kiếm trên đầu trang hoặc mở bộ lọc nâng cao.</div>
 }
 else
 {
